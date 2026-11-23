@@ -1,0 +1,12 @@
+body.on-home .rev162-item{
+  backface-visibility:hidden;
+  transform-origin:center center;
+  transition:none!important;
+}
+@media (prefers-reduced-motion:reduce){
+  body.on-home .rev162-item{
+    opacity:1!important;filter:none!important;transform:none!important;
+    text-shadow:none!important;will-change:auto!important;
+  }
+}
+

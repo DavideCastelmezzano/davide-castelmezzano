@@ -1,0 +1,866 @@
+body.on-contact { background:#08090a !important; }
+body.on-contact .site-header {
+  position:absolute !important; inset:0 0 auto 0; z-index:50;
+  width:100%; color:#fff; background:transparent !important;
+  box-shadow:none !important;
+}
+body.on-contact .site-header .brand, body.on-contact .site-header .site-nav,
+body.on-contact .site-header .site-nav a, body.on-contact .site-header .menu-toggle {color:#fff !important;}
+body.on-contact .site-header .site-nav a:hover {opacity:.7;}
+body.on-contact .contact94.contact102 {
+  background:#0a0b0d !important; color:#fff !important;
+  min-height:100svh; width:100%; position:relative;
+  animation:none; isolation:isolate;
+}
+body.on-contact .contact102 .contact94-layout {
+  display:grid !important; grid-template-columns:minmax(0, 1fr) minmax(340px, 39%) !important;
+  min-height:100svh; position:relative; align-items:center;
+  padding:clamp(112px,12vh,150px) clamp(30px,5.2vw,96px) clamp(75px,9vh,120px) !important;
+  gap:clamp(38px,5vw,95px);
+}
+body.on-contact .contact102 .contact94-art {
+  position:absolute !important; inset:0 !important;
+  display:block !important; width:100% !important; height:100% !important;
+  min-height:0 !important; overflow:hidden; z-index:0;
+  background:#0b0d10;
+}
+body.on-contact .contact102 .contact94-art img {
+  position:absolute !important; inset:0 !important; display:block;
+  width:100% !important; height:100% !important; max-width:none !important;
+  object-fit:cover; object-position:50% 48%; filter:brightness(.8) saturate(.94);
+}
+body.on-contact .contact102 .contact94-art::after {
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(90deg,rgba(0,0,0,.46) 0%,rgba(0,0,0,.20) 49%,rgba(0,0,0,.35) 100%),
+             linear-gradient(0deg,rgba(0,0,0,.26),transparent 30%,rgba(0,0,0,.23));
+}
+body.on-contact .contact102 .contact94-content {
+  display:contents !important; padding:0 !important; gap:0 !important;
+  background:transparent !important;
+}
+body.on-contact .contact102 .contact94-text {
+  position:relative;z-index:2;min-width:0;width:auto !important;max-width:520px !important;
+  margin:0 !important; align-self:center;
+}
+body.on-contact .contact102 .contact94-text h1 {
+  margin:0 !important; color:#fff !important; font-family:var(--sans) !important;
+  font-size:clamp(48px,5.25vw,78px) !important; line-height:.99 !important;
+  font-weight:700 !important; letter-spacing:-.065em !important;
+}
+body.on-contact .contact102 .contact94-text h1 em {
+  color:#fff !important; font-family:var(--serif) !important; font-weight:400 !important;
+  font-style:italic !important; letter-spacing:-.045em !important;
+  font-size:.88em;
+}
+body.on-contact .contact102 .contact94-dash {display:none !important;}
+body.on-contact .contact102 .contact94-text > p {
+  margin:clamp(20px,2.5vw,31px) 0 0 !important;
+  max-width:37ch !important; color:rgba(255,255,255,.88) !important;
+  font-size:clamp(12px,1.05vw,15px) !important;
+  line-height:1.65 !important; font-weight:400 !important;
+}
+body.on-contact .contact102 .contact94-text > p strong {font-weight:700;color:white;}
+body.on-contact .contact102 .contact94-text > p em {font-family:var(--serif);font-size:1.14em;}
+body.on-contact .contact102 .contact94-links {
+  display:flex !important; flex-direction:row !important; gap:14px !important;
+  margin:clamp(28px,4.5vw,62px) 0 0 !important; justify-content:flex-start;
+}
+body.on-contact .contact102 .contact98-icon {
+  display:grid !important;place-items:center; width:47px !important;height:47px !important;
+  border:1px solid rgba(255,255,255,.65) !important; border-radius:50% !important;
+  background:rgba(0,0,0,.16) !important; color:white !important;
+  transition:background .2s,border-color .2s;
+}
+body.on-contact .contact102 .contact98-icon:hover {background:rgba(255,255,255,.18) !important;border-color:white !important;}
+body.on-contact .contact102 .contact98-icon svg {width:21px !important;height:21px !important;}
+body.on-contact .contact102 .contact94-form {
+  position:relative; z-index:3; grid-column:2; grid-row:1;
+  box-sizing:border-box; width:100% !important; max-width:510px !important;min-width:0;
+  margin:0 auto !important; padding:clamp(30px,3vw,48px) !important;
+  background:#f7f6f2 !important; color:#1b1b1b !important;
+  border:none !important;border-radius:0 !important;
+  display:flex !important;flex-direction:column !important;
+  gap:clamp(17px,2vw,27px) !important;
+  box-shadow:none !important;
+}
+body.on-contact .contact102 .contact94-form::before {
+  content:'SCRIVIMI';display:block;color:#56534e;font:650 10px/1.4 var(--sans);
+  letter-spacing:.12em;margin-bottom:1px;
+}
+body.on-contact .contact102 .contact94-form label {display:flex !important;flex-direction:column !important;gap:7px !important; width:100%;min-width:0;}
+body.on-contact .contact102 .contact94-form label > span {
+  display:block;color:#1b1b1b !important; font-size:10px !important;
+  line-height:1.5;font-weight:700 !important;letter-spacing:.075em !important;
+}
+body.on-contact .contact102 .contact94-form input,
+body.on-contact .contact102 .contact94-form textarea {
+  width:100% !important;min-width:0; max-width:none !important;
+  padding:6px 0 11px !important; margin:0 !important;
+  color:#1b1b1b !important; background:transparent !important;
+  border:0 !important; border-bottom:1px solid #a5a19b !important;
+  border-radius:0 !important;outline:none;box-shadow:none !important;
+  font-family:var(--sans) !important; font-size:13px !important;
+  font-weight:400 !important;line-height:1.5 !important;
+}
+body.on-contact .contact102 .contact94-form textarea {height:100px !important;min-height:96px !important;resize:vertical !important;}
+body.on-contact .contact102 .contact94-form input:focus,
+body.on-contact .contact102 .contact94-form textarea:focus {border-bottom-color:#191919 !important;}
+body.on-contact .contact102 .contact94-form :is(input,textarea)::placeholder {color:#88847e !important;opacity:1;}
+body.on-contact .contact102 .contact94-form button {
+  align-self:flex-start !important;margin:2px 0 0 !important;
+  padding:12px 17px !important;min-height:40px !important;
+  width:auto !important;background:#151515 !important;color:white !important;
+  border:0 !important;border-radius:0 !important;
+  font-size:10px !important;font-weight:700 !important;letter-spacing:.04em !important;
+  text-transform:uppercase !important;
+}
+body.on-contact .contact102 .contact94-form button:hover {background:#383838 !important;}
+body.on-contact .contact102 .contact94-form button span {font-size:16px;margin-left:8px;}
+body.on-contact .site-footer {background:#0b0b0b;color:#e4e4e4;}
+@media(max-width:900px) {
+ body.on-contact .contact102 .contact94-layout {
+   display:grid !important;grid-template-columns:minmax(0,1fr) minmax(310px,46%) !important;
+   gap:24px !important;padding:120px 4vw 70px !important;
+ }
+ body.on-contact .contact102 .contact94-text h1 {font-size:clamp(40px,5.3vw,62px) !important;}
+ body.on-contact .contact102 .contact94-form {padding:27px !important;}
+}
+@media(max-width:650px) {
+ body.on-contact .site-header{position:absolute !important;}
+ body.on-contact .contact102 .contact94-layout {
+  grid-template-columns:minmax(0,1fr) !important;
+  grid-template-rows:auto auto !important;
+  min-height:100svh !important;
+  gap:clamp(28px,7vw,46px) !important;
+  align-content:center;
+  padding:clamp(106px,14svh,148px) var(--gutter) 68px !important;
+ }
+ body.on-contact .contact102 .contact94-art img {object-position:46% center;}
+ body.on-contact .contact102 .contact94-text {grid-column:1;grid-row:1;width:100% !important;max-width:480px !important;}
+ body.on-contact .contact102 .contact94-text h1 {font-size:clamp(42px,10.4vw,62px) !important;}
+ body.on-contact .contact102 .contact94-text > p {font-size:13px !important;max-width:38ch !important;}
+ body.on-contact .contact102 .contact94-links {margin-top:24px !important;}
+ body.on-contact .contact102 .contact94-form {grid-column:1;grid-row:2;max-width:520px !important;margin:0 !important;padding:clamp(23px,6vw,35px) !important;}
+}
+@media(max-width:650px) and (orientation:landscape) {
+ body.on-contact .contact102 .contact94-layout {min-height:0 !important;align-content:start;padding-top:100px !important;}
+}
+body.on-contact .contact103 .contact94-layout {
+  grid-template-columns: minmax(0, 43%) minmax(0, 1fr) !important;
+  gap: clamp(34px, 4.7vw, 82px) !important;
+  align-items: center !important;
+  min-height: 100svh !important;
+  padding: 95px clamp(36px, 8.4vw, 138px) 0 clamp(28px, 6.2vw, 110px) !important;
+}
+body.on-contact .contact103 .contact94-text {
+  max-width: 455px !important;
+  align-self: center !important;
+  grid-column: 1 !important;
+  grid-row: 1 !important;
+  margin-top: 0 !important;
+}
+body.on-contact .contact103 .contact94-text h1 {
+  color: #fff !important;
+  font-family: var(--sans) !important;
+  font-size: clamp(49px, 4.6vw, 76px) !important;
+  font-weight: 750 !important;
+  line-height: .92 !important;
+  letter-spacing: -.055em !important;
+  text-transform: uppercase !important;
+}
+body.on-contact .contact103 .contact94-text h1 em {
+  display: block !important;
+  font-family: var(--serif) !important;
+  font-size: .84em !important;
+  font-weight: 700 !important;
+  line-height: .87 !important;
+  letter-spacing: -.038em !important;
+  text-transform: none !important;
+  color: #fff !important;
+}
+body.on-contact .contact103 .contact94-text > p {
+  color: #fff !important;
+  font-family: var(--sans) !important;
+  font-size: clamp(12px, .96vw, 15px) !important;
+  line-height: 1.25 !important;
+  font-weight: 700 !important;
+  max-width: 38ch !important;
+  margin-top: clamp(25px, 2.5vw, 36px) !important;
+}
+body.on-contact .contact103 .contact94-links { display: none !important; }
+body.on-contact .contact103 .contact94-form {
+  grid-column: 2 !important; grid-row: 1 !important;
+  background: #f6f6f6 !important;
+  color: #171717 !important;
+  width: 100% !important; max-width: none !important;
+  min-height: calc(100svh - 95px) !important;
+  padding: clamp(42px, 5.5vw, 86px) clamp(36px, 5.1vw, 82px) !important;
+  display: flex !important; flex-direction: column !important;
+  justify-content: center !important;
+  align-items: stretch !important;
+  gap: clamp(17px, 1.7vw, 27px) !important;
+  margin: 0 !important;
+  border: 0 !important;
+}
+body.on-contact .contact103 .contact94-form::before {
+  content: 'SCRIVIMI' !important;
+  font: 750 clamp(22px, 1.85vw, 30px)/1.05 var(--sans) !important;
+  letter-spacing: -.035em !important;
+  color: #9b9b9b !important;
+  margin-bottom: 4px !important;
+}
+body.on-contact .contact103 .contact94-form label > span {
+  font-size: 11px !important;
+  font-weight: 750 !important;
+  letter-spacing: 0 !important;
+  color: #171717 !important;
+  line-height: 1.2 !important;
+}
+body.on-contact .contact103 .contact94-form label { gap: 3px !important; }
+body.on-contact .contact103 .contact94-form input,
+body.on-contact .contact103 .contact94-form textarea {
+  font-family: var(--sans) !important;
+  font-size: 15px !important;
+  color: #222 !important;
+  padding: 3px 0 4px !important;
+  border-bottom: 1px solid #939393 !important;
+  background: transparent !important;
+  min-height: 0 !important;
+}
+body.on-contact .contact103 .contact94-form textarea {
+  height: 39px !important;
+  min-height: 39px !important;
+  resize: vertical !important;
+}
+body.on-contact .contact103 .contact94-form :is(input,textarea)::placeholder {color:#727272 !important;opacity:1;}
+body.on-contact .contact103 .contact103-actions {
+  display:flex !important;flex-direction:row !important;align-items:center !important;
+  justify-content:flex-start !important;gap: clamp(18px,2vw,35px) !important;
+  margin-top: 12px !important; flex-wrap:wrap !important;
+}
+body.on-contact .contact103 .contact94-form .contact103-actions button {
+  margin:0 !important; flex:0 0 auto !important;
+  font-size: 11px !important;
+  padding: 14px 18px !important;
+  font-weight: 750 !important;
+  line-height: 1 !important;
+  min-height: 43px !important;
+  background: #151515 !important;color:#fff !important;
+  letter-spacing:0 !important;
+}
+body.on-contact .contact103 .contact103-follow-label {
+  color: #a1a1a1;font:750 13px/1 var(--sans);
+  margin-left: 1px;white-space:nowrap;
+}
+body.on-contact .contact103 .contact103-instagram {
+  color: #fff !important; background: #9f9f9f !important;
+  height: 36px !important;width:36px !important;border: 0 !important;
+  border-radius: 50% !important; display:grid !important;place-items:center !important;
+  flex:0 0 auto !important;transition:background .2s;
+}
+body.on-contact .contact103 .contact103-instagram:hover,
+body.on-contact .contact103 .contact103-instagram:focus-visible {background:#4e4e4e !important;}
+body.on-contact .contact103 .contact103-instagram svg {width:18px;height:18px;}
+@media (max-width: 1000px) and (min-width: 651px) {
+  body.on-contact .contact103 .contact94-layout {
+    grid-template-columns:minmax(0, 44%) minmax(0, 1fr) !important;
+    padding:90px 3.8vw 0 !important;gap:22px !important;
+  }
+  body.on-contact .contact103 .contact94-text h1 {font-size:clamp(40px,5.5vw,59px) !important;}
+  body.on-contact .contact103 .contact94-form {padding:42px 26px !important;min-height:calc(100svh - 90px) !important;}
+  body.on-contact .contact103 .contact103-actions {gap:14px !important;}
+}
+@media (max-width:650px) {
+  body.on-contact .contact103 .contact94-layout {
+    display:grid !important;grid-template-columns:minmax(0,1fr) !important;
+    grid-template-rows:auto auto !important;
+    min-height:100svh !important;
+    gap:clamp(30px,8vw,56px) !important;
+    padding:clamp(112px,15svh,150px) var(--gutter) 64px !important;
+    align-content:start !important;
+  }
+  body.on-contact .contact103 .contact94-text {
+    grid-column:1 !important;grid-row:1 !important;
+    max-width: 460px !important;
+    margin-top:clamp(20px,8svh,80px) !important;
+  }
+  body.on-contact .contact103 .contact94-text h1 {font-size:clamp(43px,10.5vw,65px) !important;}
+  body.on-contact .contact103 .contact94-text > p {font-size:13px !important;max-width:38ch !important;}
+  body.on-contact .contact103 .contact94-form {
+    grid-column:1 !important;grid-row:2 !important;
+    padding:clamp(28px,7vw,42px) clamp(24px,6vw,34px) !important;
+    min-height:0 !important;max-width: none !important;
+    gap:19px !important;
+  }
+  body.on-contact .contact103 .contact103-actions {gap:14px !important;}
+  body.on-contact .contact103 .contact103-follow-label {font-size:11px !important;}
+  body.on-contact .contact103 .contact94-form .contact103-actions button {font-size:10px !important;padding:13px 12px !important;min-height:40px !important;}
+}
+@media (max-width:650px) and (orientation:landscape) {
+  body.on-contact .contact103 .contact94-layout { min-height:0 !important; padding-top:100px !important; }
+  body.on-contact .contact103 .contact94-text {margin-top:0 !important;}
+}
+@media (min-width: 901px) {
+  body.on-contact .contact104.contact94.contact102 {
+    min-height: calc(100svh - 118px) !important;
+    height: calc(100svh - 118px) !important;
+    overflow: visible !important;
+  }
+  body.on-contact .contact104 .contact94-layout {
+    display: block !important;
+    position: relative !important;
+    height: calc(100svh - 118px) !important;
+    min-height: calc(100svh - 118px) !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  body.on-contact .contact104 .contact94-content {display:contents !important;}
+  body.on-contact .contact104 .contact94-art img {
+    object-fit: cover !important;
+    object-position: center center !important;
+    transform: translate(22.85vw, -19.75vw) scale(2.069) !important;
+    transform-origin: center center !important;
+    filter: brightness(.8) saturate(.98) !important;
+  }
+  body.on-contact .contact104 .contact94-art::after {background: none !important;}
+  body.on-contact .contact104 .contact94-text {
+    position: absolute !important;
+    left: 13.32% !important;
+    top: 36.15% !important;
+    z-index: 2 !important;
+    transform: none !important;
+    width: min(31%, 430px) !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    align-self: auto !important;
+  }
+  body.on-contact .contact104 .contact94-text h1 {
+    margin: 0 !important;
+    color: #fff !important;
+    font-size: clamp(55px, 5vw, 82px) !important;
+    font-weight: 750 !important;
+    line-height: .88 !important;
+    letter-spacing: -.053em !important;
+  }
+  body.on-contact .contact104 .contact94-text h1 em {
+    display: block !important;
+    color: #fff !important;
+    font-size: 1.05em !important;
+    margin-top: -14px !important;
+    font-weight: 700 !important;
+    line-height: .82 !important;
+    letter-spacing: -.045em !important;
+  }
+  body.on-contact .contact104 .contact94-text > p {
+    margin: 29px 0 0 !important;
+    max-width: 355px !important;
+    font-size: clamp(12px, .93vw, 15px) !important;
+    line-height: 1.23 !important;
+    font-weight: 700 !important;
+    color: #fff !important;
+    opacity: 1 !important;
+  }
+  body.on-contact .contact104 .contact94-text > p *,
+  body.on-contact .contact104 .contact94-text h1 * {
+    color: #fff !important;
+    opacity: 1 !important;
+  }
+  body.on-contact .contact104 .contact94-form {
+    position: absolute !important;
+    top: 9.9svh !important;
+    bottom: -15px !important;
+    left: 47.76% !important;
+    right: 8.4% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    width: auto !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: clamp(135px, 19.1vh, 190px) clamp(45px, 11.05vw, 180px) 38px !important;
+    background: #f6f6f6 !important;
+    box-shadow: none !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
+    align-items: stretch !important;
+    gap: 15px !important;
+  }
+  body.on-contact .contact104 .contact94-form::before {
+    color: #9b9b9b !important;
+    font-size: clamp(22px, 1.85vw, 30px) !important;
+    font-weight: 750 !important;
+    letter-spacing: -.035em !important;
+    line-height: 1.05 !important;
+    margin: 0 0 8px !important;
+  }
+  body.on-contact .contact104 .contact94-form label {gap: 3px !important;}
+  body.on-contact .contact104 .contact94-form label > span {
+    font-size: 11px !important;
+    line-height: 1.2 !important;
+    font-weight: 750 !important;
+  }
+  body.on-contact .contact104 .contact94-form input,
+  body.on-contact .contact104 .contact94-form textarea {
+    font-size: 15px !important;
+    padding: 0 0 2px !important;
+    line-height: 1.25 !important;
+    border-bottom: 1px solid #939393 !important;
+  }
+  body.on-contact .contact104 .contact94-form textarea {
+    height: 35px !important;
+    min-height: 35px !important;
+  }
+  body.on-contact .contact104 .contact103-actions {
+    margin-top: 20px !important;
+    gap: clamp(13px, 2vw, 35px) !important;
+  }
+  body.on-contact .contact104 .contact94-form .contact103-actions button {
+    font-size: 11px !important;
+    padding: 14px 18px !important;
+    min-height: 42px !important;
+  }
+}
+@media (min-width: 901px) and (max-height: 720px) {
+  body.on-contact .contact104.contact94.contact102,
+  body.on-contact .contact104 .contact94-layout {min-height: 630px !important;height: 630px !important;}
+  body.on-contact .contact104 .contact94-form {top:70px !important;padding-top:112px !important;bottom:0 !important;}
+  body.on-contact .contact104 .contact94-text {top:205px !important;}
+}
+@media (max-width: 900px) {
+  body.on-contact .contact104 .contact94-art img {
+    transform: none !important;
+    object-fit: cover !important;
+    object-position: 48% 53% !important;
+    filter: brightness(.8) saturate(.98) !important;
+  }
+  body.on-contact .contact104 .contact94-art::after {
+    background: linear-gradient(90deg,rgba(0,0,0,.30),rgba(0,0,0,.08)) !important;
+  }
+  body.on-contact .contact104 .contact94-text > p,
+  body.on-contact .contact104 .contact94-text > p *,
+  body.on-contact .contact104 .contact94-text h1,
+  body.on-contact .contact104 .contact94-text h1 * {color:#fff !important;opacity:1 !important;}
+}
+@media (min-width: 901px) {
+  body.on-contact .contact105.contact94.contact102 {
+    height: max(675px, calc(100svh - 118px)) !important;
+    min-height: max(675px, calc(100svh - 118px)) !important;
+    overflow: visible !important;
+  }
+  body.on-contact .contact105 .contact94-layout {
+    height: 100% !important;
+    min-height: 100% !important;
+    position: relative !important;
+    display: block !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  body.on-contact .contact105 .contact94-art {
+    background: #09090a !important;
+  }
+  body.on-contact .contact105 .contact94-art img {
+    left: 0 !important;
+    right: auto !important;
+    top: 0 !important;
+    bottom: auto !important;
+    width: auto !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    transform: none !important;
+    object-fit: contain !important;
+    object-position: center center !important;
+    filter: brightness(.80) saturate(.98) !important;
+    -webkit-mask-image: linear-gradient(90deg,transparent 0%,#000 8%,#000 92%,transparent 100%);
+    mask-image: linear-gradient(90deg,transparent 0%,#000 8%,#000 92%,transparent 100%);
+  }
+  body.on-contact .contact105 .contact94-art::after {
+    background: linear-gradient(90deg, rgba(0,0,0,.32) 0%, rgba(0,0,0,.30) 34%, rgba(0,0,0,.08) 58%, transparent 77%) !important;
+  }
+  body.on-contact .contact105 .contact94-text {
+    position: absolute !important;
+    left: 13.32% !important;
+    top: 49% !important;
+    transform: translateY(-50%) !important;
+    width: min(31%, 430px) !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    z-index: 2 !important;
+  }
+  body.on-contact .contact105 .contact94-text h1,
+  body.on-contact .contact105 .contact94-text h1 *,
+  body.on-contact .contact105 .contact94-text > p,
+  body.on-contact .contact105 .contact94-text > p * {
+    color: #fff !important;
+  }
+  body.on-contact .contact105 .contact94-form {
+    position: absolute !important;
+    top: clamp(72px, 9.9svh, 105px) !important;
+    bottom: clamp(42px, 6svh, 68px) !important;
+    left: 47.76% !important;
+    right: 8.4% !important;
+    width: auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 28px clamp(44px, 11vw, 174px) 62px !important;
+    justify-content: center !important;
+    align-items: stretch !important;
+    gap: clamp(13px, 1.1vw, 19px) !important;
+  }
+  body.on-contact .contact105 .contact94-form::before {
+    margin-bottom: 5px !important;
+  }
+  body.on-contact .contact105 .contact103-actions {
+    margin-top: 21px !important;
+  }
+}
+@media (min-width: 901px) and (max-height: 720px) {
+  body.on-contact .contact105.contact94.contact102 {
+    height: 720px !important;
+    min-height: 720px !important;
+  }
+  body.on-contact .contact105 .contact94-layout {
+    height: 720px !important;
+    min-height: 720px !important;
+  }
+  body.on-contact .contact105 .contact94-text {
+    top: 49% !important;
+    transform: translateY(-50%) !important;
+  }
+  body.on-contact .contact105 .contact94-form {
+    top: 72px !important;
+    bottom: 42px !important;
+    padding-top: 24px !important;
+    padding-bottom: 48px !important;
+  }
+}
+@media (max-width: 900px) {
+  body.on-contact .contact105 .contact94-art {
+    background: #09090a !important;
+  }
+  body.on-contact .contact105 .contact94-art img {
+    transform: none !important;
+    object-fit: contain !important;
+    object-position: center center !important;
+    filter: brightness(.80) saturate(.98) !important;
+  }
+  body.on-contact .contact105 .contact94-text > p,
+  body.on-contact .contact105 .contact94-text > p *,
+  body.on-contact .contact105 .contact94-text h1,
+  body.on-contact .contact105 .contact94-text h1 * {
+    color: #fff !important;
+  }
+}
+
+@media (max-width: 650px) {
+  body.on-contact .contact105 .contact94-art img {
+    object-fit: contain !important;
+    object-position: center top !important;
+  }
+  body.on-contact .contact105 .contact94-layout {
+    padding-left: var(--gutter) !important;
+    padding-right: var(--gutter) !important;
+  }
+}
+
+@media (min-width: 901px) {
+  body.on-contact .contact105.contact94.contact102 {
+    min-height: max(675px, calc(100svh - 118px)) !important;
+    height: max(675px, calc(100svh - 118px)) !important;
+  }
+  body.on-contact .contact105 .contact94-layout {
+    min-height: 100% !important;
+    height: 100% !important;
+  }
+  body.on-contact .contact105 .contact94-art {
+    overflow: hidden !important;
+    background: #08090a !important;
+  }
+  body.on-contact .contact105 .contact94-art img {
+    position: absolute !important;
+    inset: auto !important;
+    left: -30.5816vw !important;
+    top: -75.4605vw !important;
+    width: 206.8787vw !important;
+    height: auto !important;
+    max-width: none !important;
+    min-height: 0 !important;
+    transform: none !important;
+    transform-origin: 0 0 !important;
+    object-fit: fill !important;
+    object-position: 0 0 !important;
+    -webkit-mask-image: none !important;
+    mask-image: none !important;
+    filter: brightness(.82) saturate(.98) !important;
+  }
+  body.on-contact .contact105 .contact94-art::after {
+    background: none !important;
+  }
+  body.on-contact .contact105 .contact94-text {
+    left: 13.32% !important;
+    top: 36.15% !important;
+    transform: none !important;
+    width: min(31%, 430px) !important;
+  }
+  body.on-contact .contact105 .contact94-text h1 {
+    font-size: clamp(44px, 5vw, 82px) !important;
+  }
+  body.on-contact .contact105 .contact94-text > p {
+    font-size: clamp(11px, .93vw, 15px) !important;
+    line-height: 1.23 !important;
+  }
+  body.on-contact .contact105 .contact94-form {
+    left: 47.76% !important;
+    right: 8.4% !important;
+    top: clamp(65px, 9.9svh, 105px) !important;
+    bottom: -15px !important;
+    padding-inline: clamp(34px, 11.05vw, 174px) !important;
+    padding-top: clamp(135px, 19.1svh, 190px) !important;
+    padding-bottom: 38px !important;
+    justify-content: flex-start !important;
+    gap: clamp(12px, 1.05vw, 17px) !important;
+  }
+  body.on-contact .contact105 .contact94-form::before {
+    font-size: clamp(20px, 1.85vw, 30px) !important;
+  }
+  body.on-contact .contact105 .contact94-form label > span {
+    font-size: clamp(9px, .70vw, 11px) !important;
+  }
+  body.on-contact .contact105 .contact94-form input,
+  body.on-contact .contact105 .contact94-form textarea {
+    font-size: clamp(12px, .96vw, 15px) !important;
+  }
+  body.on-contact .contact105 .contact94-form .contact103-actions button {
+    font-size: clamp(9px, .71vw, 11px) !important;
+  }
+}
+
+@media (min-width: 901px) and (max-height: 720px) {
+  body.on-contact .contact105 .contact94-form {
+    top: 62px !important; bottom: 0 !important; padding-top: clamp(94px, 15svh, 118px) !important;
+  }
+}
+@media (min-width: 901px) {
+  body.on-contact .contact105 .contact94-art img {
+    inset: 0 !important;
+    left: 0 !important;
+    top: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none !important;
+    min-height: 0 !important;
+    object-fit: cover !important;
+    object-position: center center !important;
+    transform: none !important;
+    filter: brightness(.82) saturate(.98) !important;
+    -webkit-mask-image: none !important;
+    mask-image: none !important;
+  }
+  body.on-contact .contact105 .contact94-art::after {background: none !important;}
+  body.on-contact .contact105 .contact94-form {
+    left: 50.95% !important;
+    right: 12.5% !important;
+    top: clamp(73px, 9.9svh, 105px) !important;
+    bottom: -12px !important;
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    padding: clamp(145px, 18.9svh, 187px) clamp(108px, 9.1vw, 169px) 30px !important;
+    gap: clamp(11px, 1vw, 15px) !important;
+  }
+  body.on-contact .contact105 .contact94-form::before {
+    font-size: clamp(19px, 1.52vw, 25px) !important;
+    margin-bottom: 7px !important;
+    line-height: 1.06 !important;
+  }
+  body.on-contact .contact105 .contact94-form label {gap: 3px !important;}
+  body.on-contact .contact105 .contact94-form label > span {
+    font-size: clamp(9px, .65vw, 10px) !important;
+    line-height: 1.2 !important;
+  }
+  body.on-contact .contact105 .contact94-form :is(input,textarea) {
+    font-size: clamp(12px, .86vw, 14px) !important;
+    line-height: 1.25 !important;
+    padding: 3px 0 5px !important;
+  }
+  body.on-contact .contact105 .contact94-form textarea {
+    height: 36px !important;
+    min-height: 36px !important;
+  }
+  body.on-contact .contact105 .contact103-actions {
+    margin-top: 20px !important;
+    gap: clamp(10px, 1.3vw, 21px) !important;
+    flex-wrap: nowrap !important;
+  }
+  body.on-contact .contact105 .contact94-form .contact103-actions button {
+    font-size: clamp(8px, .66vw, 10px) !important;
+    padding: 11px 12px !important;
+    min-height: 39px !important;
+    white-space: nowrap !important;
+  }
+  body.on-contact .contact105 .contact103-follow-label {
+    font-size: clamp(9px, .71vw, 11px) !important;
+  }
+  body.on-contact .contact105 .contact103-instagram {
+    width: 31px !important;
+    height: 31px !important;
+  }
+  body.on-contact .contact105 .contact103-instagram svg {
+    width: 16px !important;
+    height: 16px !important;
+  }
+}
+@media (min-width: 901px) and (max-width: 1250px) {
+  body.on-contact .contact105 .contact94-form {
+    left: 51% !important;
+    right: 6.5% !important;
+    padding-inline: clamp(35px, 8.3vw, 104px) !important;
+  }
+  body.on-contact .contact105 .contact94-text h1 {
+    font-size: clamp(43px, 4.75vw, 66px) !important;
+  }
+}
+@media (min-width: 901px) and (max-height: 720px) {
+  body.on-contact .contact105 .contact94-form {
+    top: 62px !important;
+    bottom: 0 !important;
+    padding-top: clamp(88px, 13.5svh, 113px) !important;
+  }
+}
+@media (max-width: 900px) {
+  body.on-contact .contact105 .contact94-art img {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none !important;
+    object-fit: cover !important;
+    object-position: center center !important;
+    transform: none !important;
+    -webkit-mask-image: none !important;
+    mask-image: none !important;
+    filter: brightness(.82) saturate(.98) !important;
+  }
+  body.on-contact .contact105 .contact94-art::after {background: none !important;}
+}
+body.on-contact > footer.site-footer.footer31 {
+  display: none !important;
+}
+@media (min-width: 901px) {
+  body.on-contact .contact105.contact94.contact102 {
+    min-height: 100svh !important;
+    height: 100svh !important;
+    overflow: hidden !important;
+  }
+  body.on-contact .contact105 .contact94-layout {
+    min-height: 100% !important;
+    height: 100% !important;
+  }
+  body.on-contact .contact105 .contact94-form {
+    top: 50% !important;
+    bottom: auto !important;
+    transform: translateY(-50%) !important;
+    height: min(76svh, 44vw) !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    padding-top: 32px !important;
+    padding-bottom: 32px !important;
+    justify-content: center !important;
+  }
+}
+@media (min-width: 901px) and (max-height: 625px) {
+  html:has(body.on-contact) { overflow-y: auto !important; }
+  body.on-contact .contact105.contact94.contact102 {
+    height: auto !important;
+    min-height: 625px !important;
+    overflow: visible !important;
+  }
+  body.on-contact .contact105 .contact94-layout {
+    min-height: 625px !important;
+    height: 625px !important;
+  }
+  body.on-contact .contact105 .contact94-form {
+    height: 460px !important;
+  }
+}
+body.on-contact .contact109 {
+  --c109-title:'Jost','Jost',sans-serif;
+  --c109-text:'Switzer','Helvetica Neue',sans-serif;
+  font-family:var(--c109-text)!important;
+  background:#060708!important;
+}
+body.on-contact .contact109 .contact109-visual,
+body.on-contact .contact109 .contact109-slide {
+  position:absolute!important;inset:0!important;
+  width:100%!important;height:100%!important;
+  overflow:hidden!important;transform:none!important;
+  animation:none!important;transition:none!important;
+}
+body.on-contact .contact109 .contact109-slide img {
+  position:absolute!important;inset:0!important;
+  width:100%!important;height:100%!important;max-width:none!important;
+  object-fit:cover!important;object-position:center center!important;
+  transform:none!important;animation:none!important;filter:none!important;
+}
+body.on-contact .contact109 .contact109-shade {
+  position:absolute!important;inset:0!important;
+  z-index:-2!important;opacity:1!important;
+  background:
+    linear-gradient(90deg,rgba(0,0,0,.22) 0%,rgba(0,0,0,.25) 48%,rgba(0,0,0,.28) 100%),
+    linear-gradient(180deg,rgba(0,0,0,.05),transparent 32%,rgba(0,0,0,.10) 100%)!important;
+  pointer-events:none;
+}
+body.on-contact .contact109 .contact109-shade::after {content:none!important;display:none!important;}
+body.on-contact .contact109 .contact109-area {
+  background:rgba(0,0,0,.20)!important;
+}
+body.on-contact .contact109 .contact109-center h1,
+body.on-contact .contact109 .contact109-center h1 em,
+body.on-contact .contact109 .contact109-form-top h2,
+body.on-contact .contact109 .contact109-field label,
+body.on-contact .contact109 .contact109-send {
+  font-family:var(--c109-title)!important;
+}
+body.on-contact .contact109 .contact109-center h1 {
+  font-size:clamp(43px,4.1vw,77px)!important;
+  line-height:.99!important;letter-spacing:-.055em!important;
+  font-weight:700!important;text-transform:uppercase!important;
+}
+body.on-contact .contact109 .contact109-center h1 em {
+  display:block!important;font-size:inherit!important;
+  line-height:inherit!important;font-weight:700!important;
+  font-style:normal!important;letter-spacing:-.055em!important;
+  text-transform:uppercase!important;
+}
+body.on-contact .contact109 .contact109-center p,
+body.on-contact .contact109 .contact109-invite,
+body.on-contact .contact109 .contact109-form-top p,
+body.on-contact .contact109 .contact109-field input,
+body.on-contact .contact109 .contact109-field textarea,
+body.on-contact .contact109 .contact109-privacy,
+body.on-contact .contact109 .contact109-notice,
+body.on-contact .contact109 .contact109-secondary {
+  font-family:var(--c109-text)!important;
+}
+body.on-contact .contact109 .contact109-field :is(input,textarea)::placeholder {font-family:var(--c109-text)!important;}
+body.on-contact .contact109 .contact109-controls{display:none!important}
+@media(max-width:760px) {
+ body.on-contact .contact109 .contact109-shade {
+   background:linear-gradient(180deg,rgba(0,0,0,.42) 0%,rgba(0,0,0,.46) 35%,rgba(0,0,0,.60) 100%)!important;
+ }
+ body.on-contact .contact109 .contact109-area{background:rgba(0,0,0,.36)!important}
+ body.on-contact .contact109 .contact109-center h1{font-size:clamp(38px,9.8vw,58px)!important}
+}
+body.on-contact .contact109 .contact109-area {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+body.on-contact .contact109 .contact109-area::before,
+body.on-contact .contact109 .contact109-area::after {
+  content: none !important;
+}
+

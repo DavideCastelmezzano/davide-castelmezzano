@@ -1,0 +1,7 @@
+.rev155-type{transform-origin:50% 50%;backface-visibility:hidden;}
+.rev155-title{isolation:isolate;}
+.rev155-title > span{transform-origin:50% 50%;}
+@media(prefers-reduced-motion:reduce){
+ .rev155-type,.rev155-title,.rev155-title > span{filter:none!important;transform:none!important;opacity:1!important;will-change:auto!important;}
+}
+

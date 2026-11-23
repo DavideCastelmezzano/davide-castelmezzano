@@ -1,0 +1,9 @@
+#app .rev165-item.rev165-wait{opacity:0!important;pointer-events:none}
+#app .rev165-item.rev165-wait.rev165-title{filter:blur(17px);transform:translate3d(0,15px,0) scale(.986)}
+#app .rev165-item.rev165-wait.rev165-copy,
+#app .rev165-item.rev165-wait.rev165-label{filter:blur(3px);transform:translate3d(-36px,0,0)}
+#app .rev165-item.rev165-wait.rev165-action{filter:blur(3px);transform:translate3d(0,33px,0)}
+@media(prefers-reduced-motion:reduce){
+  #app .rev165-item{opacity:1!important;filter:none!important;transform:none!important;pointer-events:auto!important}
+}
+

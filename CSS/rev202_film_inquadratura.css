@@ -1,0 +1,32 @@
+/* REV204 — Ricerca: original shot composition, no aggressive magnification.
+   The source video is a single continuous excerpt of the original recording (0.9–9.5 s).
+   The empty final shots and the full-body initial shot are omitted, without internal cuts.
+   Neo Genesi uses its existing, unmodified framing. */
+body.on-research .research24-video.first {
+  transform:scale(1.025)!important;
+  transform-origin:50% 50%!important;
+  object-position:center center!important;
+}
+body.on-research .research24-scene.first .research24-mobile-film {
+  transform:scale(1.04)!important;
+  transform-origin:center center!important;
+  object-position:center center!important;
+}
+/* Retain the subtle existing crossfade between Ricerca and Neo Genesi. */
+body.on-research .research24-video {
+  transition:opacity 1.65s cubic-bezier(.22,1,.36,1)!important;
+}
+@media (max-width:760px) {
+  body.on-research .research24-video.first {
+    transform:scale(1.04)!important;
+    transform-origin:center center!important;
+    object-position:center center!important;
+  }
+}
+@media (orientation:landscape) and (max-height:650px) and (pointer:coarse) {
+  body.on-research .research24-video.first {transform:scale(1.025)!important}
+}
+@media (prefers-reduced-motion:reduce) {
+  body.on-research .research24-video,
+  body.on-research .research24-mobile-film {transition:none!important}
+}

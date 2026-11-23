@@ -1,0 +1,1111 @@
+
+const app=document.getElementById('app');const reduced=matchMedia('(prefers-reduced-motion: reduce)');const email='davidecastelmezzano@yahoo.com';
+let artworkIndex=0,cleanup=()=>{},lastFocus=null,animating=false;let viewerIndex=0,viewerBusy=false,viewerFocus=null;
+const cvSections=[
+ ['Mostre',[
+ ['2026','Geopolitica: trasformazioni e sviluppi, Galleria Plus Art Pulse, Roma.'],
+ ['2025','Premio di pittura Giovanni Colacicchi, Galleria AAIE, Roma.'],
+ ['2025','Premio di pittura Giovanni Colacicchi, Ala Nobile del Palazzo Comunale, Sabaudia.'],
+ ['2025','Nel sogno del fantastico, Galleria Viva, Soriano nel Cimino.'],
+ ['2025','OpenArt Now 50x50, Aurora Boreale Associazione Culturale, Roma.'],
+ ['2024','A tre voci, a cura di Robertomaria Siena, Spazio Urano, Roma.'],
+ ['2024','Arte è Bellezza, Sale del Palazzo Comunale, Bolsena.'],
+ ['2024','Arte è Bellezza. La forza del puro. Omaggio ad Alberini, Palazzo Nuzzi, Orte.'],
+ ['2024','Arte è Bellezza. Le nuove frontiere dell’arte, Scuderie di Palazzo Chigi Albani, Soriano nel Cimino.'],
+ ['2024','Incipit surrealtà, a cura di Robertomaria Siena, La Design.aTa Art Gallery, Roma.'],
+ ['2024','Incipit surrealtà, a cura di Robertomaria Siena, Scuderie di Palazzo Malvinni-Malvezzi, Matera.'],
+ ['2024','25° Anniversario Galería Artelibre, esposizione virtuale internazionale, Galería Artelibre, Spagna; pubblicazione nel Tomo I – Catalogo Rosso.'],
+ ['2021','Multi-Narrative: Painting in Coexistence, China Academy of Art, Hangzhou, Cina.']]],
+ ['Residenze', [['2024','Residenza Arte è Bellezza, con il patrocinio del Ministero della Cultura, Soriano nel Cimino (VT), Italia.']]],
+ ['Riconoscimenti', [['2026','Premio Combat – 17ª edizione, segnalazione della giuria e pubblicazione nel catalogo ufficiale.'],['2022','Luxembourg Art Prize, Certificato di Merito Artistico, Pinacothèque du Luxembourg.']]],
+ ['Pubblicazioni', [['2025','Panta Rei Editoriale, articolo dedicato all’opera La Domatrice di Incubi.'],['2024','Pubblicazione nel Tomo I – Catalogo Rosso, Galería Artelibre.'],['2023','Guía de Arte LEONARDO 2023, pagina monografica, Galería Artelibre.']]],
+ ['Formazione', [['2020','Diploma accademico di secondo livello in Pittura, Accademia di Belle Arti di Roma, 110 e lode.'],['2017','Diploma accademico di primo livello in Pittura, Accademia di Belle Arti di Roma.']]]
+];
+function ps(a){return a.map(s=>`<p>${s}</p>`).join('')}
+function extensible(items,visible=1,id='more'){return `<div class="prose" id="${id}">${ps(items.slice(0,visible))}<div class="extra" hidden>${ps(items.slice(visible))}</div><button type="button" class="toggle-more" aria-expanded="false" data-toggle="${id}"><span>Leggi tutto</span>${ICON.down}</button></div>`}
+function home(){return `<article class="page home art-home home139" aria-label="Davide Castelmezzano, pittura">
+<section class="art-hero home139-hero" id="hero-scroll-intro" aria-label="Dettagli pittorici di Smek e Illudes">
+ <div class="home139-slides" aria-hidden="true">
+  <img class="home139-slide is-active" data-art="Smek" src="${MEDIA['rev178_hero1.png']}" alt="" fetchpriority="high" decoding="async">
+  <img class="home139-slide" data-art="Illudes — nuovo dettaglio" src="${MEDIA['rev178_hero2.png']}" alt="" decoding="async">
+  <img class="home139-slide" data-art="Illudes" src="${MEDIA['rev178_hero3.png']}" alt="" decoding="async">
+ </div>
+</section>
+<section class="art-about home139-about" id="studio-home" aria-labelledby="art-about-title">
+ <div class="art-about-left"><div class="art-about-copy home139-about-copy">
+  <h1 id="art-about-title" class="home139-statement"><span>IMMAGINI IN</span><span>DIVENIRE</span></h1>
+  <h2 class="home139-about-label">CHI SONO ?</h2>
+  <p>Davide Castelmezzano (Matera, 1992) vive e lavora a Roma. La sua ricerca pittorica esplora le possibilità di trasfigurazione fantastica dell’immagine attraverso il dialogo tra gestualità pittorica e pareidolia.</p>
+  <a class="art-about-link" href="#/bio">Davide</a>
+ </div></div>
+ <figure class="art-about-picture"><img src="${MEDIA['rev178_home_about.jpg']}" alt="Davide Castelmezzano nel suo studio di pittura" loading="lazy" decoding="async"></figure>
+</section>
+<section class="art-neo home139-neo" id="neogenesi-intro" aria-labelledby="art-neo-title">
+ <img class="art-neo-painting" src="${MEDIA['rev178_home_neo.png']}" alt="Dettaglio originale di Illudes" loading="lazy" decoding="async">
+ <div class="art-neo-shade" aria-hidden="true"></div>
+ <div class="home139-neo-content">
+  <div class="home139-neo-title"><h1 id="art-neo-title"><span>NEO</span><span>GENESI</span></h1><span class="home139-neo-serie">Serie</span></div>
+  <div class="home139-neo-info"><h2>SERIE PITTORICA 2026</h2>
+  <p>Neo Genesi esplora le possibilità che emergono dall’incontro tra forme e immagini apparentemente incompatibili. Attraverso la gestualità pittorica, elementi differenti entrano in relazione, generando configurazioni inattese e nuove possibilità figurative.</p>
+  <a href="#/neogenesi" class="home139-neo-link">SCOPRI</a></div>
+ </div>
+</section></article>`}
+
+
+// Only Neo Genesi is an established SERIES. The other two entrances are chronological/editorial groups.
+const EARLY_TITLES=['Identità antropomorfe','Mistero della seduzione','Estensioni interiori'];
+const EARLY=EARLY_TITLES.map(title=>ARCHIVE.find(work=>work.title===title)).filter(Boolean);
+const OTHER=ARCHIVE.filter(work=>!EARLY_TITLES.includes(work.title));
+const COLLECTIONS={
+ neogenesi:{name:'Neo Genesi',title:'Neo <em>Genesi.</em>',banner:'cinema_illudes.webp',desc:'Dalla convivenza di linguaggi visivi differenti emerge un nuovo equilibrio pittorico.',items:WORKS,cat:'SERIE / 2026'},
+ percorso:{name:'Enigmi semiotici',title:'Enigmi<br><em>semiotici.</em>',banner:'arch_identita.jpg',desc:'Opere realizzate tra il 2019 e il 2021.',items:EARLY,cat:'2019–2021'},
+ altrilavori:{name:'Fantasia',title:'Fantasia.',banner:'arch_domatrice.jpg',desc:'Opere realizzate tra il 2018 e il 2024.',items:OTHER,cat:'2018–2024'}
+};
+const galleryEntries=()=>COLLECTIONS[getPage()]?.items||WORKS;
+function gallery(){
+ const route=getPage(),c=COLLECTIONS[route]||COLLECTIONS.neogenesi;
+ const w=c.items[0];
+ const name=w.title==='Smek'?'Daimon (Smek)':w.title;
+ const nameHtml=w.title==='Smek'?'Daimon <span class="rev180-smek">(Smek)</span>':name;
+ const seriesName={'neogenesi':'NEO GENESI','percorso':'ENIGMI SEMIOTICI','altrilavori':'FANTASIA'}[route]||'NEO GENESI';
+ return `<article class="page rev155-gallery" aria-label="Opere di Davide Castelmezzano">
+  <section class="rev155-scene" id="rev155-scene" aria-label="Spazio espositivo">
+   <div class="rev155-series" id="rev155-series">
+    <button class="rev155-heading rev155-series-toggle" id="rev155-series-toggle" type="button" aria-expanded="true" aria-controls="rev155-series-list">SERIE</button>
+    <div class="rev155-series-list rev155-disclosure" id="rev155-series-list">
+     <button type="button" class="rev155-series-choice ${route==='neogenesi'?'is-active':''}" data-series="neogenesi">NEO GENESI <span>2026</span></button>
+     <button type="button" class="rev155-series-choice ${route==='altrilavori'?'is-active':''}" data-series="altrilavori">FANTASIA <span>2018–2024</span></button>
+     <button type="button" class="rev155-series-choice ${route==='percorso'?'is-active':''}" data-series="percorso">ENIGMI SEMIOTICI <span>2019–2021</span></button>
+    </div>
+   </div>
+   <div class="rev155-art-zone" id="rev155-art-zone" aria-label="Opera principale; scorri per sfogliare">
+    <div class="rev156-world" id="rev156-world">
+     <button type="button" id="rev155-artwork" class="rev155-artwork" aria-label="Avvicina l'opera ${name}" aria-pressed="false">
+      <span class="rev155-photo-shell" id="rev155-photo-shell"><img id="rev155-image" class="rev155-photo" src="${MEDIA[w.src]}" alt="${name}" draggable="false" decoding="async"></span>
+     </button>
+    </div>
+   </div>
+   <div class="rev155-work-info" id="rev155-work-info" aria-live="polite">
+    <h1 id="rev155-title">${nameHtml}</h1><p id="rev155-medium">${[w.medium,w.size].filter(Boolean).join(' ')}</p><p id="rev155-year">${w.year||''}</p>
+    <div id="rev162-panels" class="rev162-panels" role="group" aria-label="Visualizzazione del dittico" hidden>
+     <button type="button" data-panel="0" aria-pressed="true" title="Visualizza entrambi i pannelli">INTERO</button>
+     <button type="button" data-panel="1" aria-pressed="false" title="Visualizza il pannello 1">1</button>
+     <button type="button" data-panel="2" aria-pressed="false" title="Mostra o nascondi il pannello 2">2</button>
+    </div>
+   </div>
+   <div class="rev155-works" id="rev155-works">
+    <button type="button" class="rev155-heading rev155-works-toggle" id="rev155-works-toggle" aria-expanded="true" aria-controls="rev155-works-list">OPERE ${seriesName}</button>
+    <div class="rev155-works-list rev155-disclosure" id="rev155-works-list"></div>
+   </div>
+   <div class="rev155-actions">
+    <button id="rev155-explore" type="button" aria-label="Esplora l'opera a schermo intero"><span>ESPLORA L'OPERA</span><img class="rev159-explore-icon" src="MEDIA/icona_esplora.png" width="39" height="38" alt="" aria-hidden="true"></button>
+    <a href="#/contatti" id="rev155-enquire">PER INFO SULL'OPERA</a>
+   </div>
+  </section>
+  <div class="rev155-immersive" id="rev155-immersive" role="dialog" aria-modal="true" aria-label="Esplorazione dell'opera" hidden>
+   <div class="rev155-immersive-canvas" id="rev155-immersive-canvas" aria-label="Trascina per esplorare la pittura"><img id="rev155-immersive-image" src="${MEDIA[w.src]}" alt="Dettaglio di ${name}" draggable="false"></div>
+   <button class="rev155-immersive-back" id="rev155-back" type="button">TORNA INDIETRO</button>
+   <span class="rev155-immersive-caption" id="rev155-immersive-caption">${name}</span>
+  </div>
+ </article>`;
+}
+
+function research(){
+ const paras=arr=>arr.map(p=>`<p>${p}</p>`).join('');
+ return `<article class="page research24" aria-label="Ricerca artistica">
+ <div class="research24-track" id="research24-track"><div class="research24-stage" id="research24-stage">
+  <video class="research24-video first" id="research24-v1" autoplay muted playsinline loop preload="metadata" poster="MEDIA/ricerca_poster.png" aria-hidden="true"><source src="MEDIA/ricerca_rev204.mp4" type="video/mp4"></video>
+  <video class="research24-video second" id="research24-v2" autoplay muted playsinline loop preload="metadata" poster="MEDIA/neo_genesi_poster.png" aria-hidden="true"><source src="MEDIA/neo_genesi_hq.mp4" type="video/mp4"></video>
+  <div class="research24-shade"></div><div class="research24-grain"></div>
+  <section class="research24-scene first" id="research24-general" aria-labelledby="research24-general-heading">
+   <video class="research24-mobile-film" autoplay muted loop playsinline preload="metadata" poster="MEDIA/ricerca_poster.png" aria-hidden="true"><source src="MEDIA/ricerca_rev204.mp4" type="video/mp4"></video>
+   <div class="research24-contents"><h1 class="research24-title" id="research24-general-heading">RICERCA</h1>
+   <div class="research24-cols" lang="it">${paras(STATEMENT_GENERAL)}</div></div>
+  </section>
+  <section class="research24-scene second" id="research24-neo" aria-labelledby="research24-neo-heading">
+   <video class="research24-mobile-film" autoplay muted loop playsinline preload="metadata" poster="MEDIA/neo_genesi_poster.png" aria-hidden="true"><source src="MEDIA/neo_genesi_hq.mp4" type="video/mp4"></video>
+   <div class="research24-contents"><h2 class="research24-title" id="research24-neo-heading">NEO GENESI</h2>
+   <div class="research24-cols" lang="it">${paras(STATEMENT_SERIES)}</div></div>
+  </section>
+ </div></div>
+
+ </article>`;
+}
+function bio(){
+ const paragraphs=BIO.map(p=>`<p>${p}</p>`).join('');
+ return `<article class="page bio25-page" aria-label="Biografia e curriculum di Davide Castelmezzano">
+ <section class="bio25-immersive" aria-label="L'artista, biografia e curriculum">
+   <img class="bio25-photograph" src="${MEDIA["rev178_bio_portrait.jpg"]}" alt="Davide Castelmezzano al lavoro nel suo studio a Roma" fetchpriority="high">
+   <div class="bio25-shadow" aria-hidden="true"></div>
+   <div class="bio25-frame">
+      <div class="bio25-shell">
+        <div class="bio25-content">
+          <div class="bio25-tabs" role="tablist" aria-label="Percorso dell'artista">
+           <button type="button" class="bio25-tab is-active" id="bio25-tab-bio" role="tab" aria-selected="true" aria-controls="bio25-pane-bio" data-bio-tab="bio">BIOGRAFIA</button>
+           <button type="button" class="bio25-tab" id="bio25-tab-cv" role="tab" aria-selected="false" aria-controls="bio25-pane-cv" data-bio-tab="cv">CURRICULUM</button>
+          </div>
+          <section id="bio25-pane-bio" role="tabpanel" aria-labelledby="bio25-tab-bio" class="bio25-panel is-active" data-bio-panel="bio">
+           <h1 class="bio25-title">BIOGRAFIA</h1>
+           <div class="bio25-columns" lang="it">${paragraphs}</div>
+          </section>
+          <section id="bio25-pane-cv" role="tabpanel" aria-labelledby="bio25-tab-cv" class="bio25-panel" data-bio-panel="cv" hidden>
+           <h2 class="bio25-title">CURRICULUM VITAE</h2>
+           <div class="bio25-cv-scroll" tabindex="0" aria-label="Curriculum completo, scorri per leggere">
+            ${cvSections.map(([heading,entries])=>`<section class="bio25-cv-group"><h3>${heading}</h3>${entries.map(([year,desc])=>`<div class="bio25-cv-row"><span>${year}</span><p>${desc}</p></div>`).join('')}</section>`).join('')}
+           </div>
+          </section>
+        </div>
+      </div>
+   </div>
+ </section>
+ </article>`;
+}
+function contact(){return `<article class="page contact109" aria-label="Contatti">
+<div class="contact109-visual" aria-hidden="true">
+ <div class="contact109-slide current" data-art="0"><img src="${MEDIA['rev178_contact.png']}" alt="" fetchpriority="high" decoding="async"/></div>
+</div>
+<div class="contact109-shade" aria-hidden="true"></div>
+<div class="contact109-columns">
+ <section class="contact109-story" aria-labelledby="contact109-title">
+  <div class="contact109-center"><h1 id="contact109-title">RESTIAMO <em>in contatto.</em></h1>
+   <p>Per proposte espositive, collaborazioni o richieste relative alla mia ricerca pittorica, puoi scrivermi qui.</p></div>
+ </section>
+ <section class="contact109-area" aria-label="Modulo di contatto"><div class="contact109-inner">
+  <div class="contact109-form-top"><h2>Scrivimi<span>.</span></h2><p>Campi obbligatori *</p></div>
+  <p class="contact109-invite">Compila il modulo per inviarmi un messaggio.</p>
+  <form id="contact109-form" method="post" action="#" novalidate>
+   <div class="contact109-row">
+    <div class="contact109-field"><label for="contact109-name">NOME E COGNOME *</label><input name="name" id="contact109-name" autocomplete="name" required maxlength="120" placeholder="Come ti chiami"/></div>
+    <div class="contact109-field"><label for="contact109-email">INDIRIZZO EMAIL *</label><input type="email" name="email" id="contact109-email" autocomplete="email" required maxlength="254" placeholder="nome@esempio.com"/></div>
+   </div>
+   <input type="hidden" name="subject" value="Messaggio dal sito"/>
+   <div class="contact109-field"><label for="contact109-message">IL TUO MESSAGGIO *</label><textarea name="message" id="contact109-message" required minlength="10" maxlength="4000" placeholder="Raccontami brevemente la tua proposta o richiesta..."></textarea></div>
+   <input name="_gotcha" class="contact109-trap" type="text" aria-label="Lascia vuoto" autocomplete="off" tabindex="-1"/>
+   <button class="contact109-send" type="submit">INVIA IL MESSAGGIO <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h17M13 5l7 7-7 7"/></svg></button>
+   <p class="contact109-notice" id="contact109-notice" aria-live="polite" role="status"></p>
+   <p class="contact109-privacy">I dati inseriti saranno utilizzati soltanto per rispondere alla richiesta. <a href="#/privacy">Privacy</a></p>
+  </form>
+  <div class="contact109-secondary" aria-label="Collegamenti diretti">
+  <div class="contact109-channels">
+   <a href="https://www.instagram.com/davidecastelmezzano/" target="_blank" rel="noopener noreferrer" aria-label="Instagram" title="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.1" y="3.1" width="17.8" height="17.8" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.7" r=".9" fill="currentColor" stroke="none"/></svg></a>
+   <a href="mailto:${email}" aria-label="Scrivi un'email" title="Email"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M16 8v5.3c0 1.7 2.4 2.6 3.6.8C24.1 6.8 17.9 2.4 12 2.4a9.6 9.6 0 1 0 6.7 16.5"/></svg></a>
+  </div>
+ </div>
+ </div></section>
+</div></article>`;}
+
+const legal31Pages={"privacy":()=>"<article class=\"page legal31\" lang=\"it\" aria-label=\"Privacy policy.\"><div class=\"legal31-head\"><span class=\"legal31-eyebrow\">INFORMAZIONI LEGALI / DAVIDE CASTELMEZZANO</span></div><div class=\"legal31-body\"><h1>Privacy<br><em>policy.</em></h1><div class=\"legal31-content\"><div class=\"legal31-draft\">BOZZA — Questa pagina deve essere verificata e completata prima della pubblicazione del sito.</div><h2>1. Titolare del trattamento</h2><p>Davide Castelmezzano, artista, con attività a Roma (Italia). Contatto: <a href=\"mailto:davidecastelmezzano@yahoo.com\">davidecastelmezzano@yahoo.com</a>. <strong>Indirizzo e dati identificativi eventualmente obbligatori devono essere completati prima della pubblicazione.</strong></p>\n<h2>2. Dati e finalità</h2><p>Il sito presenta opere e informazioni artistiche. Quando scrivi all'artista tramite il collegamento email, il tuo indirizzo, il contenuto del messaggio e gli eventuali allegati sono trattati per gestire la comunicazione e risponderti. Il sito non prevede attualmente un modulo di contatto con invio di dati a un server proprio.</p><p>Il fornitore di hosting del sito pubblicato potrà trattare dati tecnici di connessione (per esempio indirizzi IP e log di sicurezza) per il funzionamento e la protezione del servizio. <strong>Fornitore, tempi di conservazione e basi giuridiche vanno verificati dopo la scelta dell'hosting.</strong></p>\n<h2>3. Risorse esterne e strumenti tecnici</h2><p>Il sito carica Jost da Google Fonts e Switzer da Fontshare: queste richieste possono trasmettere dati tecnici ai rispettivi fornitori. Prima della pubblicazione occorre verificare la conformità di tali servizi oppure valutare una configurazione locale autorizzata dalle licenze. Un collegamento esterno porta al profilo Instagram dell'artista; Instagram può trattare dati se decidi di aprirlo. La preferenza della lingua viene memorizzata localmente nel browser, come descritto nella pagina Cookie.</p><h2>4. Basi giuridiche e conservazione</h2><p>Le comunicazioni ricevute saranno trattate per rispondere a richieste e per le eventuali misure precontrattuali richieste dall'interessato; altri eventuali trattamenti tecnici dipendono dalle caratteristiche dell'hosting. <strong>Le basi giuridiche applicabili e i periodi di conservazione devono essere determinati e inseriti prima della messa online.</strong></p>\n<h2>5. Destinatari, trasferimenti, diritti</h2><p>Eventuali fornitori tecnici (hosting, servizio di posta, caratteri web) potranno ricevere dati nell'ambito dei rispettivi servizi. L'eventuale trasferimento fuori dallo Spazio economico europeo deve essere valutato sulla base dei fornitori effettivi. Puoi chiedere accesso, rettifica, cancellazione o limitazione del trattamento quando previsti dal GDPR, e presentare reclamo al <a href=\"https://www.garanteprivacy.it/\" target=\"_blank\" rel=\"noopener noreferrer\">Garante per la protezione dei dati personali</a>.</p>\n<h2>6. Aggiornamenti</h2><p>Questa informativa è una bozza riferita al prototipo e sarà aggiornata prima della pubblicazione con i dati del titolare, l'infrastruttura effettiva, le basi giuridiche, i destinatari e i tempi di conservazione.</p></div></div></article>","cookies":()=>"<article class=\"page legal31\" lang=\"it\" aria-label=\"Cookie policy.\"><div class=\"legal31-head\"><span class=\"legal31-eyebrow\">INFORMAZIONI LEGALI / DAVIDE CASTELMEZZANO</span></div><div class=\"legal31-body\"><h1>Cookie<br><em>policy.</em></h1><div class=\"legal31-content\"><div class=\"legal31-draft\">BOZZA — Questa pagina deve essere verificata e completata prima della pubblicazione del sito.</div><h2>Uso di cookie e memorie del browser</h2><p>Nel prototipo attuale non sono integrati sistemi di pubblicità comportamentale né piattaforme di analytics.</p><p>La preferenza per la lingua IT o EN è salvata nella memoria locale del browser (localStorage, chiave davide-language-v1), così da essere ricordata nelle visite successive. Non è usata per profilazione e può essere cancellata tramite le impostazioni del browser.</p>\n<h2>Cookie tecnici</h2><p>I cookie tecnici, quando effettivamente impiegati, non richiedono un consenso preventivo, ma devono essere descritti nell'informativa. Un banner di consenso è invece necessario quando vengono utilizzati cookie o altri strumenti di tracciamento non tecnici soggetti a consenso.</p>\n<h2>Servizi esterni</h2><p>Il sito carica Jost da Google Fonts e Switzer da Fontshare. Questi caricamenti comportano richieste a servizi esterni, indipendentemente dall'eventuale installazione di cookie. Prima della pubblicazione dovranno essere verificate anche le configurazioni del provider di hosting e di eventuali servizi integrati.</p>\n<h2>Preferenze e futuro sito</h2><p>Al momento non è previsto un pannello di scelta dei cookie, perché nel prototipo non sono stati integrati strumenti non tecnici che richiedano consenso. <strong>Se si aggiungeranno analytics non esenti, contenuti di terzi incorporati o strumenti di profilazione, saranno introdotti i controlli e le informazioni necessari prima della loro attivazione.</strong></p></div></div></article>","note-legali":()=>"<article class=\"page legal31\" lang=\"it\" aria-label=\"Note legali e crediti.\"><div class=\"legal31-head\"><span class=\"legal31-eyebrow\">INFORMAZIONI LEGALI / DAVIDE CASTELMEZZANO</span></div><div class=\"legal31-body\"><h1>Note legali<br><em>e crediti.</em></h1><div class=\"legal31-content\"><div class=\"legal31-draft\">BOZZA — Questa pagina deve essere verificata e completata prima della pubblicazione del sito.</div><h2>Identità e contatti</h2><p>Davide Castelmezzano — pittore contemporaneo. Roma, Italia. Per richieste e informazioni: <a href=\"mailto:davidecastelmezzano@yahoo.com\">davidecastelmezzano@yahoo.com</a>.</p><p><strong>Da verificare prima della pubblicazione:</strong> eventuali dati richiesti per l'attività esercitata (indirizzo del prestatore, partita IVA se posseduta, iscrizioni o estremi professionali applicabili). Non sono stati inseriti numeri o dati fiscali non comunicati.</p>\n<h2>Opere e immagini</h2><p>© 2026 Davide Castelmezzano. Le opere riprodotte, i relativi dettagli e le fotografie dell'attività dell'artista sono tutelati dalle norme applicabili sul diritto d'autore. L'uso e la riproduzione richiedono l'autorizzazione del titolare dei diritti, salvo le eccezioni previste dalla legge.</p>\n<h2>Crediti di progetto</h2><p>Opere e direzione artistica: Davide Castelmezzano. Progettazione e sviluppo del prototipo web con il supporto di strumenti di intelligenza artificiale e revisione umana. Questa indicazione descrive l'assistenza tecnica alla realizzazione del sito e <strong>non attribuisce all'intelligenza artificiale la creazione dei dipinti esposti</strong>.</p>\n<h2>Accesso e contenuti</h2><p>Il sito è un portfolio artistico. Le informazioni e la disponibilità delle opere sono da verificare direttamente con l'artista; non è attivo un sistema di acquisto online nel prototipo.</p></div></div></article>","privacy-en":()=>"<article class=\"page legal31\" lang=\"en\" aria-label=\"Privacy policy.\"><div class=\"legal31-head\"><span class=\"legal31-eyebrow\">LEGAL INFORMATION / DAVIDE CASTELMEZZANO</span></div><div class=\"legal31-body\"><h1>Privacy<br><em>policy.</em></h1><div class=\"legal31-content\"><div class=\"legal31-draft\">DRAFT — This page must be reviewed and completed before the website goes live.</div><h2>1. Data controller</h2><p>Davide Castelmezzano, artist working in Rome, Italy. Contact: <a href=\"mailto:davidecastelmezzano@yahoo.com\">davidecastelmezzano@yahoo.com</a>. <strong>Any mandatory address and identification details must be completed before publication.</strong></p>\n<h2>2. Personal data and purposes</h2><p>This site presents artworks and information about the artist. If you contact the artist by email, your address, message and any attachments are processed to handle your enquiry and reply. The prototype does not currently use its own server-side contact form.</p><p>The eventual hosting provider may process technical connection data such as IP addresses and security logs for operation and security. <strong>Provider details, retention periods and applicable legal bases must be verified before publication.</strong></p>\n<h2>3. External services and technical storage</h2><p>The site loads Jost from Google Fonts and Switzer from Fontshare, which may involve transmitting technical information to these providers. Their privacy implications should be assessed before launch, or an appropriately licensed local setup considered. The Instagram link leads to an external platform. Your language preference is saved locally in the browser, as explained in the Cookie policy.</p>\n<h2>4. Legal bases, retention, recipients and rights</h2><p>Email enquiries are handled to reply to the sender and, where relevant, take steps requested prior to entering a contract. Other technical processing depends on the eventual hosting arrangements. <strong>Exact legal bases, retention periods, recipients and potential international transfers must be confirmed before publication.</strong></p><p>Where provided by the GDPR, you may request access, correction, erasure or restriction of your personal data. You may file a complaint with the <a href=\"https://www.garanteprivacy.it/\" target=\"_blank\" rel=\"noopener noreferrer\">Italian Data Protection Authority</a>.</p>\n<h2>5. Updates</h2><p>This is a draft notice for a prototype, to be completed after the hosting and processing arrangements are finalized.</p></div></div></article>","cookies-en":()=>"<article class=\"page legal31\" lang=\"en\" aria-label=\"Cookie policy.\"><div class=\"legal31-head\"><span class=\"legal31-eyebrow\">LEGAL INFORMATION / DAVIDE CASTELMEZZANO</span></div><div class=\"legal31-body\"><h1>Cookie<br><em>policy.</em></h1><div class=\"legal31-content\"><div class=\"legal31-draft\">DRAFT — This page must be reviewed and completed before the website goes live.</div><h2>Browser storage and cookies</h2><p>The current prototype does not integrate behavioural advertising or analytics platforms.</p><p>The IT or EN language preference is saved in your browser local storage (localStorage, key davide-language-v1) so it can be remembered on future visits. It is not used for profiling and can be cleared in your browser settings.</p>\n<h2>Technical cookies</h2><p>Strictly necessary technical cookies do not require prior consent, but they should be explained in a notice when used. Non-essential tracking cookies or similar tools requiring consent must not be activated before obtaining valid consent.</p>\n<h2>External resources</h2><p>This site requests Jost from Google Fonts and Switzer from Fontshare. Such external requests may transfer technical data even without cookies. Hosting settings and any future embedded third-party services must also be assessed.</p>\n<h2>Preferences</h2><p>There is no cookie preference panel in this prototype because no non-essential tracking has been intentionally integrated. <strong>If non-exempt analytics, embedded third-party content or profiling tools are added, appropriate information and consent controls must be implemented before activation.</strong></p></div></div></article>","note-legali-en":()=>"<article class=\"page legal31\" lang=\"en\" aria-label=\"Legal notices and credits.\"><div class=\"legal31-head\"><span class=\"legal31-eyebrow\">LEGAL INFORMATION / DAVIDE CASTELMEZZANO</span></div><div class=\"legal31-body\"><h1>Legal notices<br><em>and credits.</em></h1><div class=\"legal31-content\"><div class=\"legal31-draft\">DRAFT — This page must be reviewed and completed before the website goes live.</div><h2>Identity and contact</h2><p>Davide Castelmezzano — contemporary painter, Rome, Italy. Contact: <a href=\"mailto:davidecastelmezzano@yahoo.com\">davidecastelmezzano@yahoo.com</a>.</p><p><strong>Before launch:</strong> confirm any information required for the professional activity actually carried out, including business address, VAT number where applicable and other relevant registration details. No tax or registration number has been invented.</p>\n<h2>Copyright</h2><p>© 2026 Davide Castelmezzano. Images and artworks are protected under applicable copyright laws. Permission is required for reproduction or use, except where allowed by law.</p>\n<h2>Project credits</h2><p>Artworks and art direction: Davide Castelmezzano. Web prototype designed and developed with the assistance of artificial intelligence tools and human review. This refers to assistance in building the website; <strong>it does not describe the paintings as AI-generated</strong>.</p>\n<h2>Website scope</h2><p>This is an artist portfolio. Please contact the artist directly for accurate information on artworks. No online checkout is implemented in the prototype.</p></div></div></article>"};
+function integratedGallery(){return `<section class="integrated-gallery" aria-label="Galleria opere — Revisione 36"><iframe id="rev36-frame" title="Galleria delle opere di Davide Castelmezzano" loading="eager" allow="fullscreen"></iframe></section>`;}
+const routes={...legal31Pages,home,neogenesi:gallery,percorso:gallery,altrilavori:gallery,ricerca:research,bio,contatti:contact};
+const getPage=()=>{const route=location.hash.replace(/^#\/?/,'').replace(/\/$/,'').split('?')[0]||'home';return route==='opere'?'neogenesi':route;};
+function render(keep=false){if(document.getElementById('work-viewer')?.classList.contains('open'))closeWorkViewer(false);cleanup();cleanup=()=>{};const page=getPage();if(['percorso','altrilavori'].includes(page))artworkIndex=0;const name=routes[page]?page:'home';document.body.classList.toggle('on-home',name==='home');document.body.classList.toggle('on-research',name==='ricerca');document.body.classList.toggle('on-bio',name==='bio');document.body.classList.toggle('on-contact',name==='contatti');document.body.classList.toggle('on-legal',Object.hasOwn(legal31Pages,name));document.body.classList.toggle('on-series',['neogenesi','percorso','altrilavori'].includes(name));document.body.classList.remove('rev57-full-gallery');app.innerHTML=routes[name]();if(document.getElementById("rev36-frame")){document.getElementById("rev36-frame").srcdoc=document.getElementById("rev36-source").value;}document.querySelectorAll('[data-nav]').forEach(a=>a.classList.toggle('active',a.dataset.nav===name||(['neogenesi','percorso','altrilavori'].includes(name)&&a.dataset.nav==='opere')));if(!document.body.classList.contains('menu-open')){document.getElementById('site-nav').classList.remove('open');document.getElementById('menu-toggle').setAttribute('aria-expanded','false');}if(!keep)scrollTo({top:0,behavior:'instant'});document.title=(name==='home'?'Davide Castelmezzano':name==='neogenesi'?'Neo Genesi — Davide Castelmezzano':name.charAt(0).toUpperCase()+name.slice(1)+' — Davide Castelmezzano');if(name==='home'){document.querySelectorAll('.frieze-square[data-feature-work]').forEach(a=>a.addEventListener('click',()=>{artworkIndex=Number(a.dataset.featureWork)}));let stopSlider=slider();let stopReveal=reveals();let stopProcess=bindHomeProcess();let stopDetails=bindHomeDetails();let stopVideo133=bindVideoHero133();cleanup=()=>{stopSlider();stopReveal();stopProcess();stopDetails();stopVideo133()}}if(['neogenesi','percorso','altrilavori'].includes(name)&&!document.getElementById('rev36-frame'))bindCollection();if(name==='contatti')cleanup=bindContact();if(name==='ricerca')bindResearchVideo();if(name==='bio')bindBio25();document.querySelectorAll('[data-toggle]').forEach(el=>el.addEventListener('click',()=>{const parent=document.getElementById(el.dataset.toggle);const extra=parent.querySelector('.extra');const expand=extra.hidden;extra.hidden=!expand;el.setAttribute('aria-expanded',String(expand));el.querySelector('span').textContent=expand?'Riduci testo':'Leggi tutto'}))}
+/**
+ * Rev111 - coreografia delle immagini legata allo scroll (reversibile).
+ * Le fotografie dei dipinti NON vengono alterate: solo traslazione, zoom, opacita'
+ * dei sei riquadri che mostrano i file originali del portfolio.
+ * Timeline 0-1: scritta nel nero / apparizione del video / metamorfosi / nero.
+ */
+/* REV117 — coreografia direzionale ispirata al bozzetto originale.
+ * Ogni frammento ha un'ancora compositiva, un ingresso indipendente e un'uscita
+ * sfalsata. La lettura resta reversibile; nessun timer costringe ad attendere.
+ */
+
+/* REV129: scorrimento libero, comandi accessibili e trascinamento mouse dei dettagli.
+   Nessuna cattura della rotellina verticale e nessun carosello automatico. */
+function bindHomeDetails(){
+ const scroller=app.querySelector('#home-detail-scroller');
+ if(!scroller)return ()=>{};
+ const prev=app.querySelector('#detail-prev'),next=app.querySelector('#detail-next');
+ const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
+ let down=false,startX=0,startScroll=0,dragMoved=false,suppressClick=false;
+ let activePointer=null;
+ const hasRoom=()=>Math.max(0,scroller.scrollWidth-scroller.clientWidth);
+ const update=()=>{
+  prev.disabled=scroller.scrollLeft<4;
+  next.disabled=scroller.scrollLeft>=hasRoom()-4;
+ };
+ const step=()=>Math.min(scroller.clientWidth*.88,395);
+ const navigate=direction=>scroller.scrollBy({left:direction*step(),behavior:reduced.matches?'instant':'smooth'});
+ const left=()=>navigate(-1),right=()=>navigate(1);
+ const pointerDown=e=>{
+  if(e.pointerType!=='mouse'||e.button!==0)return;
+  activePointer=e.pointerId;down=true;dragMoved=false;startX=e.clientX;startScroll=scroller.scrollLeft;scroller.style.scrollBehavior='auto';
+ };
+ const pointerMove=e=>{
+  if(!down||activePointer!==e.pointerId)return;
+  const delta=e.clientX-startX;
+  if(Math.abs(delta)>7){dragMoved=true;scroller.scrollLeft=startScroll-delta;}
+ };
+ const pointerUp=()=>{if(down&&dragMoved){suppressClick=true;window.setTimeout(()=>{suppressClick=false},100)}down=false;activePointer=null;scroller.style.scrollBehavior='';};
+ const click=e=>{if(dragMoved||suppressClick){e.preventDefault();e.stopPropagation();dragMoved=false;}};
+ const key=e=>{if(e.key==='ArrowRight'){e.preventDefault();right()}else if(e.key==='ArrowLeft'){e.preventDefault();left()}};
+ prev.addEventListener('click',left);next.addEventListener('click',right);
+ scroller.addEventListener('scroll',update,{passive:true});
+ scroller.addEventListener('pointerdown',pointerDown);
+ scroller.addEventListener('pointermove',pointerMove);
+ window.addEventListener('pointerup',pointerUp);window.addEventListener('blur',pointerUp);
+ scroller.addEventListener('click',click,true);
+ scroller.addEventListener('keydown',key);
+ window.addEventListener('resize',update);
+ update();
+ return ()=>{prev.removeEventListener('click',left);next.removeEventListener('click',right);scroller.removeEventListener('scroll',update);scroller.removeEventListener('pointerdown',pointerDown);scroller.removeEventListener('pointermove',pointerMove);window.removeEventListener('pointerup',pointerUp);window.removeEventListener('blur',pointerUp);scroller.removeEventListener('click',click,true);scroller.removeEventListener('keydown',key);window.removeEventListener('resize',update);};
+}
+
+function bindHomeProcess(){
+ const hero=document.querySelector('.home-hero-scroll');
+ const root=document.querySelector('.home-process');
+ const neo=document.querySelector('.neo-field--minimal');
+ if(!root)return ()=>{};
+ const stage=root.querySelector('.process-stage');
+ const film=root.querySelector('.process-film');
+ const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
+ const smooth=(a,b,x)=>{const t=clamp((x-a)/(b-a));return t*t*(3-2*t)};
+ const lerp=(a,b,t)=>a+(b-a)*t;
+ let raf=0,disposed=false,playing=false;
+ let desired=0,shown=null,heroDesired=0,heroShown=null;
+ let neoDesired=.5,neoShown=null;
+ function setPlayback(shouldPlay){
+  if(!film||playing===shouldPlay)return;
+  playing=shouldPlay;
+  if(shouldPlay){const p=film.play();if(p?.catch)p.catch(()=>{playing=false})}
+  else film.pause();
+ }
+ function read(){
+  const h=innerHeight;
+  if(hero){const box=hero.getBoundingClientRect();heroDesired=clamp(-box.top/Math.max(1,hero.offsetHeight-h));}
+  const box=root.getBoundingClientRect();
+  desired=clamp(-box.top/Math.max(1,root.offsetHeight-stage.offsetHeight));
+  if(neo){const r=neo.getBoundingClientRect();neoDesired=clamp((h-r.top)/Math.max(1,h+r.height));}
+ }
+ function paint(p,hp,np){
+  if(hero){
+   hero.style.setProperty('--hero-scroll-black',smooth(.12,.88,hp).toFixed(4));
+   hero.style.setProperty('--hero-meta-hide',smooth(.16,.80,hp).toFixed(4));
+   hero.style.setProperty('--home-hero-scale',(1+.042*smooth(0,1,hp)).toFixed(4));
+   hero.style.setProperty('--home-hero-shift',(-12*smooth(0,1,hp)).toFixed(2)+'px');
+  }
+  // Breve apparizione, tempo per leggere, quindi la materia video emerge
+  // e occupa il centro senza spostare la tipografia o aggiungere contenuti.
+  const title=smooth(.018,.175,p)*(1-smooth(.435,.650,p));
+  const exit=smooth(.435,.650,p);
+  const emerge=smooth(.385,.515,p);
+  const open=smooth(.445,.850,p);
+  const breathe=smooth(.880,1,p);
+  const side=(innerWidth<=700?8:34)*(1-open)+1.4*breathe;
+  const top=60*(1-open)+1.8*breathe;
+  const bottom=(innerWidth<=700?18:14)*(1-open)+2.5*breathe;
+  stage.style.setProperty('--process-text-opacity',title.toFixed(4));
+  stage.style.setProperty('--process-copy-y',(-17*exit).toFixed(2)+'px');
+  stage.style.setProperty('--process-copy-blur',(2.3*exit).toFixed(2)+'px');
+  stage.style.setProperty('--process-video-opacity',emerge.toFixed(4));
+  stage.style.setProperty('--clip-side',side.toFixed(2)+'%');
+  stage.style.setProperty('--clip-top',top.toFixed(2)+'%');
+  stage.style.setProperty('--clip-bottom',bottom.toFixed(2)+'%');
+  stage.style.setProperty('--clip-radius',(14*(1-open)+3*breathe).toFixed(1)+'px');
+  stage.style.setProperty('--process-film-scale',(1.105-.067*open+.015*breathe).toFixed(4));
+  stage.style.setProperty('--process-film-y',(-.65*open).toFixed(2)+'%');
+  if(neo)neo.style.setProperty('--neo-shift',((.5-np)*18).toFixed(2)+'px');
+  root.dataset.progress=Math.round(p*100);
+  const r=root.getBoundingClientRect();
+  setPlayback(Boolean(r.bottom>0&&r.top<innerHeight&&emerge>.05&&!document.hidden&&!reduced.matches));
+ }
+ function frame(){
+  raf=0;if(disposed)return;read();
+  if(shown===null||reduced.matches){shown=desired;heroShown=heroDesired;neoShown=neoDesired;}
+  else {
+   shown=lerp(shown,desired,.19);heroShown=lerp(heroShown,heroDesired,.22);neoShown=lerp(neoShown,neoDesired,.15);
+   if(Math.abs(shown-desired)<.00015)shown=desired;
+   if(Math.abs(heroShown-heroDesired)<.00015)heroShown=heroDesired;
+   if(Math.abs(neoShown-neoDesired)<.00015)neoShown=neoDesired;
+  }
+  paint(shown,heroShown,neoShown);
+  if((shown!==desired||heroShown!==heroDesired||neoShown!==neoDesired)&&!disposed)raf=requestAnimationFrame(frame);
+ }
+ const schedule=()=>{if(!raf&&!disposed)raf=requestAnimationFrame(frame)};
+ window.addEventListener('scroll',schedule,{passive:true});
+ window.addEventListener('resize',schedule);
+ document.addEventListener('visibilitychange',schedule);
+ frame();
+ return ()=>{disposed=true;window.removeEventListener('scroll',schedule);window.removeEventListener('resize',schedule);document.removeEventListener('visibilitychange',schedule);if(raf)cancelAnimationFrame(raf);setPlayback(false)};
+}
+
+function bindBio25(){
+ const root=app.querySelector('.bio25-immersive');if(!root)return;
+ const tabs=[...root.querySelectorAll('[data-bio-tab]')];
+ function activate(name){
+  tabs.forEach(btn=>{const selected=btn.dataset.bioTab===name;btn.classList.toggle('is-active',selected);btn.setAttribute('aria-selected',String(selected));btn.tabIndex=selected?0:-1;});
+  root.querySelectorAll('[data-bio-panel]').forEach(panel=>{const on=panel.dataset.bioPanel===name;panel.hidden=!on;panel.classList.toggle('is-active',on);});
+  const scroller=root.querySelector('.bio25-cv-scroll');if(scroller)scroller.scrollTop=0;
+ }
+ tabs.forEach((btn,i)=>{btn.addEventListener('click',()=>activate(btn.dataset.bioTab));btn.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='ArrowLeft'){e.preventDefault();const next=tabs[(i+(e.key==='ArrowRight'?1:tabs.length-1))%tabs.length];activate(next.dataset.bioTab);next.focus();}})});
+}
+function bindResearchVideo(){
+ const root=app.querySelector('.research24-stage');if(!root)return;
+ const scenes=[root.querySelector('.research24-scene.first'),root.querySelector('.research24-scene.second')];
+ const films=[document.getElementById('research24-v1'),document.getElementById('research24-v2')];
+ const mobileFilms=[...root.querySelectorAll('.research24-mobile-film')];
+ let state=0,lock=false,lockTimer=null;
+ function switchTo(i){if(i===state||lock)return;lock=true;state=i;root.dataset.phase=String(state);
+  scenes.forEach((el,j)=>{el.setAttribute('aria-hidden',String(j!==i));el.inert=j!==i;el.querySelector('.research24-contents').scrollTop=0});
+  lockTimer=setTimeout(()=>{lock=false},900);
+ }
+ scenes[1].inert=true;scenes[1].setAttribute('aria-hidden','true');root.dataset.phase='0';
+ function canScroll(el,delta){return delta>0 ? el.scrollTop+el.clientHeight<el.scrollHeight-3 : el.scrollTop>3}
+ const wheel=e=>{const scrollParent=e.target.closest('.research24-contents');if(scrollParent&&canScroll(scrollParent,e.deltaY))return;e.preventDefault();if(Math.abs(e.deltaY)>5)switchTo(e.deltaY>0?1:0)};
+ root.addEventListener('wheel',wheel,{passive:false});let startY=null;
+ const tstart=e=>{startY=e.touches[0]?.clientY};const tend=e=>{if(startY===null)return;const delta=startY-e.changedTouches[0].clientY;const text=e.target.closest('.research24-contents');if(Math.abs(delta)>70&&(!text||!canScroll(text,delta)))switchTo(delta>0?1:0);startY=null};
+ root.addEventListener('touchstart',tstart,{passive:true});root.addEventListener('touchend',tend,{passive:true});
+ const play=()=>{const isPaused=document.hidden||reduced.matches;[...films,...mobileFilms].forEach(f=>{if(isPaused)f.pause();else f.play().catch(()=>{})})};
+ document.addEventListener('visibilitychange',play);
+ play();const old=cleanup;cleanup=()=>{clearTimeout(lockTimer);root.removeEventListener('wheel',wheel);root.removeEventListener('touchstart',tstart);root.removeEventListener('touchend',tend);document.removeEventListener('visibilitychange',play);[...films,...mobileFilms].forEach(f=>f.pause());old()};
+}
+
+function slider(){
+ const hero=app.querySelector('.hero');
+ if(!hero)return ()=>{};
+ const images=Array.from(hero.querySelectorAll('.hero-stage .hero-slide'));
+ if(!images.length)return ()=>{};
+ const buttons=Array.from(hero.querySelectorAll('[data-slide]'));
+ const names=['Smek','Fides','Illudes'];
+ const caption=hero.querySelector('#hero-caption');
+ // The next dissolve begins while the outgoing camera is STILL moving.
+ // Slides change every 6 seconds. Zoom runs through the entire crossfade.
+ const interval=6000,fade=1550,travel=interval+fade;
+ let active=0,raf=0,timer=0,fadeTimer=0,observer=null,visible=true,disposed=false;
+ let outgoing=null;
+ const started=new WeakMap();
+ const allowed=()=>!disposed&&!document.hidden&&visible&&!reduced.matches;
+ function camera(img,now){
+  const t=Math.max(0,Math.min(1,(now-(started.get(img)||now))/travel));
+  // Nearly linear travel keeps moving visibly even during the dissolve.
+  const ease=t*t*(3-2*t);
+  const zoom=1.055+0.145*ease;
+  img.style.setProperty('transform',`scale(${zoom.toFixed(5)}) translate3d(${(-.45*ease).toFixed(4)}%,${(-.3*ease).toFixed(4)}%,0)`,'important');
+ }
+ function tick(now){
+  if(!allowed())return;
+  camera(images[active],now);
+  if(outgoing)camera(outgoing,now);
+  raf=requestAnimationFrame(tick);
+ }
+ function run(){cancelAnimationFrame(raf);if(allowed())raf=requestAnimationFrame(tick)}
+ function schedule(){clearTimeout(timer);if(allowed()&&images.length>1)timer=setTimeout(()=>switchTo((active+1)%images.length),interval)}
+ function switchTo(nextIndex){
+  const n=Number(nextIndex);
+  if(!Number.isInteger(n)||n<0||n>=images.length||n===active)return;
+  clearTimeout(timer);clearTimeout(fadeTimer);
+  if(outgoing){outgoing.classList.remove('is-leaving');outgoing.style.zIndex='0';outgoing=null;}
+  const old=images[active],next=images[n];
+  // Layer the incoming painting ABOVE the outgoing painting, with a real opacity crossfade.
+  old.style.zIndex='1';
+  next.style.zIndex='2';
+  next.style.setProperty('transform','scale(1.055) translate3d(0,0,0)','important');
+  started.set(next,performance.now());
+  old.classList.add('is-leaving');old.classList.remove('current');
+  next.classList.remove('is-leaving');next.classList.add('current');
+  outgoing=old;
+  active=n;
+  if(caption)caption.textContent=(names[n]||'Opera')+' — dettaglio, 2026';
+  buttons.forEach((btn,i)=>btn.setAttribute('aria-pressed',String(i===n)));
+  // Keep updating both images until the dissolve is completely over.
+  fadeTimer=setTimeout(()=>{
+   if(outgoing===old){outgoing=null;old.classList.remove('is-leaving');old.style.zIndex='0';}
+  },fade+60);
+  run();schedule();
+ }
+ const firstTime=performance.now();
+ images.forEach((img,i)=>{
+  img.classList.toggle('current',i===0);img.classList.remove('is-leaving');
+  img.style.zIndex=i===0?'2':'0';
+  img.style.setProperty('transform','scale(1.055) translate3d(0,0,0)','important');
+ });
+ started.set(images[0],firstTime);
+ buttons.forEach(btn=>btn.addEventListener('click',()=>switchTo(btn.dataset.slide)));
+ function onVisibility(){
+  if(allowed()){
+   const now=performance.now();started.set(images[active],now);
+   if(outgoing){outgoing.classList.remove('is-leaving');outgoing.style.zIndex='0';outgoing=null;}
+   run();
+  }else cancelAnimationFrame(raf);
+  schedule();
+ }
+ document.addEventListener('visibilitychange',onVisibility);
+ if('IntersectionObserver' in window){
+  observer=new IntersectionObserver(entries=>{visible=entries[0].isIntersecting;onVisibility()},{threshold:.1});
+  observer.observe(hero);
+ }
+ run();schedule();
+ return ()=>{disposed=true;clearTimeout(timer);clearTimeout(fadeTimer);cancelAnimationFrame(raf);observer?.disconnect();document.removeEventListener('visibilitychange',onVisibility)};
+}
+function reveals(){const nodes=[...app.querySelectorAll('[data-reveal]')];if(reduced.matches||!('IntersectionObserver'in window))return ()=>{};app.classList.add('js-reveal');const o=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting){x.target.classList.add('visible');o.unobserve(x.target)}}),{rootMargin:'0px 0px -20px 0px',threshold:.1});nodes.forEach(n=>o.observe(n));return ()=>o.disconnect()}
+function nextGallery(delta){if(animating)return;const collection=galleryEntries();const next=(artworkIndex+delta+collection.length)%collection.length;const img=document.getElementById('gallery-image');const w=collection[next];if(!img)return;animating=true;const finish=()=>{artworkIndex=next;img.src=MEDIA[w.src];img.alt=w.title+', '+w.medium+', '+w.year;document.getElementById('gallery-title').textContent=w.title;document.getElementById('gallery-spec').textContent=[w.medium,w.size,w.year].filter(Boolean).join(' · ');img.style.setProperty('--shift',delta>0?'28px':'-28px');img.classList.remove('switching');void img.offsetWidth;img.classList.add('switching');animating=false};if(reduced.matches){finish();return}const anim=img.animate([{opacity:1,transform:'translateX(0)',filter:'blur(0px)'},{opacity:.02,transform:`translateX(${delta>0?-23:23}px)`,filter:'blur(3px)'}],{duration:260,easing:'cubic-bezier(.45,0,.55,1)',fill:'forwards'});anim.onfinish=()=>{anim.cancel();finish()};anim.oncancel=()=>{animating=false}}
+function bindGallery(){document.getElementById('gallery-prev').onclick=()=>nextGallery(-1);document.getElementById('gallery-next').onclick=()=>nextGallery(1);document.getElementById('open-index').onclick=openIndex;document.getElementById('open-zoom').onclick=()=>openZoom(galleryEntries()[artworkIndex]);let x=null;const st=document.querySelector('.gallery-stage');st.addEventListener('touchstart',e=>{x=e.touches[0].clientX},{passive:true});st.addEventListener('touchend',e=>{if(x===null)return;let d=e.changedTouches[0].clientX-x;if(Math.abs(d)>70)nextGallery(d<0?1:-1);x=null},{passive:true})}
+function openOverlay(id){lastFocus=document.activeElement;document.getElementById(id).classList.add('open');document.body.classList.add('modal-open');document.getElementById(id+'-close').focus()}
+function closeOverlay(id){document.getElementById(id).classList.remove('open');if(!document.querySelector('.overlay.open'))document.body.classList.remove('modal-open');lastFocus?.isConnected&&lastFocus.focus()}
+function openZoom(w){document.getElementById('zoom-img').src=MEDIA[w.src];document.getElementById('zoom-img').alt=w.title;document.getElementById('zoom-name').textContent=w.title;document.getElementById('zoom-caption').textContent=w.title+' · '+w.year;openOverlay('zoom')}
+function openIndex(){const list=document.getElementById('index-list');const collection=galleryEntries();document.getElementById('index-label').textContent=(COLLECTIONS[getPage()]||COLLECTIONS.neogenesi).name;list.innerHTML=collection.map((w,i)=>`<button class="index-card" data-idx="${i}"><img src="${MEDIA[w.src]}" alt="" loading="lazy"><span><small>${String(i+1).padStart(2,'0')}</small>${w.title}</span></button>`).join('');list.querySelectorAll('[data-idx]').forEach(b=>b.addEventListener('click',()=>{artworkIndex=Number(b.dataset.idx);closeOverlay('index');render(true);document.getElementById('visualizza-opera')?.scrollIntoView({behavior:'instant'})}));openOverlay('index')}
+function bindCollection(){
+ const root=app.querySelector('.rev155-gallery');if(!root)return;
+ const route=getPage(),collection=COLLECTIONS[route]||COLLECTIONS.neogenesi;
+ const items=collection.items;let index=0;
+ const scene=root.querySelector('#rev155-scene');
+ const artZone=root.querySelector('#rev155-art-zone');
+ const art=root.querySelector('#rev155-artwork');
+ const world=root.querySelector('#rev156-world');
+ const shell=root.querySelector('#rev155-photo-shell');
+ const image=root.querySelector('#rev155-image');
+ const title=root.querySelector('#rev155-title'),medium=root.querySelector('#rev155-medium'),year=root.querySelector('#rev155-year');
+ const worksToggle=root.querySelector('#rev155-works-toggle'),seriesToggle=root.querySelector('#rev155-series-toggle');
+ const worksList=root.querySelector('#rev155-works-list'),seriesList=root.querySelector('#rev155-series-list');
+ const panelBox=root.querySelector('#rev162-panels');
+ const explore=root.querySelector('#rev155-explore');
+ const immersive=root.querySelector('#rev155-immersive'),canvas=root.querySelector('#rev155-immersive-canvas');
+ const bigImage=root.querySelector('#rev155-immersive-image'),back=root.querySelector('#rev155-back'),caption=root.querySelector('#rev155-immersive-caption');
+ const rev201Canvas=document.createElement('canvas');rev201Canvas.className='rev201-zoom-pixels';rev201Canvas.setAttribute('aria-hidden','true');canvas.appendChild(rev201Canvas);
+ const rev201Ctx=rev201Canvas.getContext('2d',{alpha:false});let rev201Frame=0;
+ const reducedMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
+ let near=false,zoom=1,dx=0,dy=0,busy=false,queued=null,lastWheel=0,panel=0,enterTimer=0;
+ let alive=true,drag=null,ignoreClick=false,immersiveOpen=false,viewZoom=1,vx=0,vy=0;
+ let naturalW=1,naturalH=1,coverWidth=1,coverHeight=1,oldFocus=null;
+ const rev212ArtBounds={
+  'opera_caccia.jpg':[0.3232,0.2571,0.6875,0.7619],
+  'opera_conflitti.jpg':[0.3661,0.1778,0.6429,0.8381],
+  'opera_daimon.jpg':[0.3732,0.1302,0.6321,0.8889],
+  'opera_domatrice.jpg':[0.3143,0.2698,0.6946,0.746],
+  'opera_endiadi.jpg':[0.1821,0.2635,0.8143,0.7714],
+  'opera_endiadi_pannello1.jpg':[0.3607,0.2603,0.6696,0.7556],
+  'opera_endiadi_pannello2.jpg':[0.35,0.2635,0.6589,0.7714],
+  'opera_enesi.jpg':[0.2357,0.1111,0.7464,0.9048],
+  'opera_estensioni.jpg':[0.3161,0.2571,0.6929,0.7587],
+  'opera_fides.jpg':[0.225,0.219,0.775,0.7968],
+  'opera_fuggi_esperanza.jpg':[0.2839,0.2952,0.725,0.7206],
+  'opera_identita.jpg':[0.1821,0.1143,0.8268,0.9016],
+  'opera_illudes.jpg':[0.2429,0.1333,0.7661,0.8825],
+  'opera_imago.jpg':[0.1911,0.3111,0.7839,0.7206],
+  'opera_imago_pannello1.jpg':[0.3446,0.3048,0.6375,0.7143],
+  'opera_imago_pannello2.jpg':[0.3589,0.3048,0.65,0.7143],
+  'opera_innocenti.jpg':[0.2821,0.2952,0.7268,0.7206],
+  'opera_luogo.jpg':[0.2911,0.2603,0.7179,0.7556],
+  'opera_mistero.jpg':[0.3393,0.2159,0.6696,0.8032],
+  'opera_osmosi.jpg':[0.2714,0.2095,0.7179,0.8063],
+  'opera_uniti.jpg':[0.2875,0.2762,0.7214,0.7397]
+ };
+ const rev212InitialPanel={
+   'opera_imago.jpg':[.198,.321,.477,.707],
+   'opera_endiadi.jpg':[.190,.271,.486,.762]
+ };
+ let artworkBounds=[0,0,1,1],focusBounds=[0,0,1,1];
+ function rev212BoundsFor(src){return rev212ArtBounds[(src||'').split(/[\/?#]/).filter(Boolean).pop()]||[0,0,1,1];}
+ function rev212Layout(vw,vh){
+   const [l,t,r,b]=focusBounds;
+   const roiW=naturalW*Math.max(.05,r-l),roiH=naturalH*Math.max(.05,b-t);
+   const scale=Math.max(vw/roiW,vh/roiH)*1.065;
+   coverWidth=naturalW*scale;coverHeight=naturalH*scale;
+   vx=-( (l+r)*.5-.5)*coverWidth;vy=-( (t+b)*.5-.5)*coverHeight;
+   bigImage.style.width=coverWidth+'px';bigImage.style.height=coverHeight+'px';
+ }
+ let rev210CloseTimer=0,rev210OpenToken=0;
+ const pointers=new Map();let pinch=null;
+ const galleryTouches=new Map();let galleryPinch=null,suppressArtClickUntil=0;
+ // REV183 — a single, readable entrance timeline shared with Bio / Ricerca.
+ // Do not animate the selectors when opening their dropdowns or when changing paintings.
+ let rev183IntroObserver=null;
+ let rev183IntroTimer=0;
+ let rev183IntroPlayed=false;
+ const rev183IntroAnimations=[];
+ const rev183IntroNodes=[];
+ function rev183Stages(){
+   const stages=[];
+   const add=(el,kind,delay,duration)=>{
+     if(el && el.isConnected && !el.hidden) stages.push({el,kind,delay,duration});
+   };
+   // Painting first. Only its opacity moves: never change scale, framing or position.
+   add(artZone,'painting',0,1450);
+   // In the same visual reading order as the staged headings / paragraphs of Bio.
+   add(seriesToggle,'title',310,1280);
+   [...seriesList.querySelectorAll('.rev155-series-choice')].forEach((el,i)=>add(el,'copy',590+i*215,1040));
+   add(title,'title',1080,1280);
+   add(medium,'copy',1300,1040);
+   add(year,'copy',1525,1040);
+   add(worksToggle,'title',1830,1280);
+   const works=[...worksList.querySelectorAll('.rev155-work-choice')];
+   works.forEach((el,i)=>add(el,'copy',2110+i*155,910));
+   const lastWork=2110+(Math.max(0,works.length-1)*155);
+   [...root.querySelectorAll('.rev155-actions > *')].forEach((el,i)=>add(el,'action',Math.max(2870,lastWork+165)+i*215,1050));
+   return stages;
+ }
+ function rev183Frames(kind){
+   if(kind==='painting') return [
+     {opacity:0,offset:0},{opacity:.34,offset:.42},{opacity:1,offset:1}
+   ];
+   if(kind==='title') return [
+     {opacity:0,filter:'blur(17px)',transform:'translate3d(0,18px,0) scale(.985)',offset:0},
+     {opacity:.56,filter:'blur(7px)',transform:'translate3d(0,7px,0) scale(.993)',offset:.48},
+     {opacity:1,filter:'blur(0px)',transform:'translate3d(0,0,0) scale(1)',offset:1}
+   ];
+   if(kind==='action') return [
+     {opacity:0,filter:'blur(3px)',transform:'translate3d(0,38px,0)',offset:0},
+     {opacity:.82,filter:'blur(.7px)',transform:'translate3d(0,10px,0)',offset:.66},
+     {opacity:1,filter:'blur(0px)',transform:'translate3d(0,0,0)',offset:1}
+   ];
+   return [
+     {opacity:0,filter:'blur(3.5px)',transform:'translate3d(-36px,0,0)',offset:0},
+     {opacity:.76,filter:'blur(1px)',transform:'translate3d(-9px,0,0)',offset:.64},
+     {opacity:1,filter:'blur(0px)',transform:'translate3d(0,0,0)',offset:1}
+   ];
+ }
+ function rev183Prepare(){
+   if(reducedMotion||typeof Element.prototype.animate!=='function')return;
+   for(const stage of rev183Stages()){
+     stage.el.classList.add('rev183-unrevealed');
+     rev183IntroNodes.push(stage.el);
+   }
+ }
+ function rev183Start(){
+   if(rev183IntroPlayed||!alive||!root.isConnected)return;
+   rev183IntroPlayed=true;
+   rev183IntroObserver?.disconnect();rev183IntroObserver=null;
+   for(const {el,kind,delay,duration} of rev183Stages()){
+     el.classList.remove('rev183-unrevealed');
+     if(reducedMotion || typeof el.animate!=='function')continue;
+     // REV185: faster initial appearance, preserving reading order and individual motion styles.
+     const entranceTempo=.64;
+     const anim=el.animate(rev183Frames(kind),{
+       duration:Math.round(duration*entranceTempo),
+       delay:Math.round(delay*entranceTempo),
+       fill:'both',easing:'cubic-bezier(.32,.09,.22,1)'
+     });
+     rev183IntroAnimations.push(anim);
+     anim.finished.then(()=>{
+       if(alive&&el.isConnected){anim.cancel();}
+     }).catch(()=>{});
+   }
+ }
+ function rev183OnFirstDisplay(){
+   if(reducedMotion)return;
+   const begin=()=>{
+     if(rev183IntroPlayed||!alive||!root.isConnected)return;
+     const nav=document.getElementById('site-nav');
+     if(document.body.classList.contains('menu-open') || nav?.classList.contains('rev170-route-hold') || nav?.classList.contains('rev169-closing'))return;
+     rev183IntroObserver?.disconnect();rev183IntroObserver=null;
+     clearTimeout(rev183IntroTimer);
+     // Allow the menu curtain to finish before starting visible text movement.
+     rev183IntroTimer=setTimeout(async()=>{
+       if(!alive||!root.isConnected)return;
+       // Wait briefly for the current high-resolution picture to be ready.
+       if(!image.complete || image.naturalWidth===0){
+         await Promise.race([image.decode().catch(()=>{}),new Promise(resolve=>setTimeout(resolve,950))]);
+       }
+       if(!alive||!root.isConnected)return;
+       if(document.body.classList.contains('menu-open')){rev183OnFirstDisplay();return;}
+       requestAnimationFrame(()=>requestAnimationFrame(rev183Start));
+     },230);
+   };
+   rev183IntroObserver=new MutationObserver(begin);
+   rev183IntroObserver.observe(document.body,{attributes:true,attributeFilter:['class']});
+   begin();
+ }
+
+ const mod=(a,b)=>(a%b+b)%b;
+ const displayName=w=>w.title==='Smek'?'Daimon (Smek)':w.title;
+ const technical=w=>[w.medium,w.size].filter(Boolean).join(' ').replaceAll('×','x');
+ // Le differenze fisiche delle tele devono essere percepibili, senza ridurre
+ // troppo i piccoli lavori: si usa la superficie documentata in centimetri.
+ // Nei dittici si prende la dimensione complessiva, non quella del singolo pannello.
+ const physicalFactor=w=>{
+   const dims=[...(w.size||'').matchAll(/(\d+(?:[.,]\d+)?)\s*[×xX]\s*(\d+(?:[.,]\d+)?)/g)];
+   if(!dims.length)return 1;
+   const d=dims[dims.length-1];
+   const area=Number(d[1].replace(',','.'))*Number(d[2].replace(',','.'));
+   return Math.max(.78,Math.min(1.08,Math.sqrt(area/15000)));
+ };
+ const panelPrefix=w=>w?.src==='ng_imago.jpg'?'ng_imago':w?.src==='ng_endi.jpg'?'ng_endi':null;
+ const activeSource=w=>{const prefix=panelPrefix(w);return prefix&&panel?prefix+'_panel'+panel+'.jpg':w.src;};
+ const panelLabel=w=>displayName(w)+(panel?' · Pannello '+panel:'');
+ const flash=(el,frames,opt)=>reducedMotion?Promise.resolve():el.animate(frames,opt).finished.catch(()=>{});
+ function updateInfo(){const w=items[index];scene.style.setProperty('--rev161-art-ratio',(physicalFactor(w)*(panel?.93:1)).toFixed(4));if(w.title==='Smek'){title.innerHTML='Daimon <span class="rev180-smek">(Smek)</span>';}else{title.textContent=displayName(w);}medium.textContent=technical(w);year.textContent=w.year||'';image.alt=panelLabel(w);art.setAttribute('aria-label',(near?'Allontana':'Avvicina')+' l’opera '+panelLabel(w));caption.textContent=panelLabel(w);bigImage.alt='Dettaglio di '+panelLabel(w);
+  panelBox.hidden=!panelPrefix(w);panelBox.querySelectorAll('[data-panel]').forEach(b=>{const active=Number(b.dataset.panel)===panel;b.classList.toggle('is-active',active);b.setAttribute('aria-pressed',String(active));});}
+
+ function openDisclosure(name){const work=name==='works',node=work?worksList:seriesList,toggle=work?worksToggle:seriesToggle,other=work?seriesList:worksList,otherToggle=work?seriesToggle:worksToggle;
+  const show=node.hidden;node.hidden=!show;toggle.setAttribute('aria-expanded',String(show));
+  scene.classList.toggle('has-works-open',!worksList.hidden);scene.classList.toggle('has-series-open',!seriesList.hidden);
+ }
+ function populateWorks(){worksList.replaceChildren();for(const i of items.keys()){
+  const button=document.createElement('button');button.type='button';button.className='rev155-work-choice';button.textContent=(items[i].title==='Smek'?'DAIMON':items[i].title).toUpperCase().replace(/\s/g,' ');button.dataset.work=String(i);
+  if(i===index){button.classList.add('is-active');button.setAttribute('aria-current','true');}
+  worksList.appendChild(button);
+ }}
+ // White gallery wall and canvas are transformed as ONE layer. All labels remain pinned to the screen.
+ function resetTransform(){zoom=1;dx=0;dy=0;world.style.transform='translate3d(0,0,0) scale(1)';}
+ function setNear(state){near=!!state;scene.classList.toggle('is-near',near);art.setAttribute('aria-pressed',String(near));art.setAttribute('aria-label',(near?'Allontana':'Avvicina')+' l’opera '+panelLabel(items[index]));art.removeAttribute('title');resetTransform();}
+ function clampPan(){
+  // The artwork and the white wall move together, but cannot reach the fixed labels.
+  const w=artZone.clientWidth||innerWidth,h=artZone.clientHeight||innerHeight;
+  const maxX=near?Math.max(0,(zoom-1)*w*.47):0;
+  const maxY=near?Math.max(0,(zoom-1)*h*.47):0;
+  dx=Math.max(-maxX,Math.min(maxX,dx));dy=Math.max(-maxY,Math.min(maxY,dy));}
+ function transform(){clampPan();world.style.transform=`translate3d(${dx}px,${dy}px,0) scale(${zoom})`;}
+ async function showWork(next){
+  if(!alive)return;
+  next=mod(next,items.length);
+  if(next===index)return;
+  if(busy){queued=next;return;}
+  busy=true;
+  const oldIndex=index, srcBefore=image.src;
+  const direction=(oldIndex===items.length-1&&next===0)?1:(oldIndex===0&&next===items.length-1)?-1:(next>oldIndex?1:-1);
+  const destination=items[next];
+  const nextSrc=MEDIA[destination.src];
+  const preloaded=new Image();preloaded.src=nextSrc;
+  try{await preloaded.decode();}catch(_){}
+  if(!alive){busy=false;return;}
+  // Both paintings travel as static, fully rendered rectangles. There is NO size,
+  // opacity or blur interpolation at any point in the slide.
+  // getBoundingClientRect() includes the transparent letterbox area of an
+  // object-fit:contain element. Measure the actual PAINTED pixels instead.
+  const paintedRect=el=>{
+   const r=el.getBoundingClientRect(),nw=el.naturalWidth||r.width,nh=el.naturalHeight||r.height;
+   const fit=getComputedStyle(el).objectFit;
+   if(fit!=='contain'||!nw||!nh)return r;
+   const factor=Math.min(r.width/nw,r.height/nh),cw=nw*factor,ch=nh*factor;
+   return {left:r.left+(r.width-cw)/2,top:r.top+(r.height-ch)/2,width:cw,height:ch,right:r.left+(r.width+cw)/2,bottom:r.top+(r.height+ch)/2};
+  };
+  const oldRect=paintedRect(image);
+  const stage=document.createElement('div');stage.className='rev162-slide-layer rev163-slide-layer';
+  const phantom=(src,r)=>{
+   const el=document.createElement('img');el.src=src;el.draggable=false;el.alt='';
+   Object.assign(el.style,{position:'absolute',left:r.left+'px',top:r.top+'px',width:r.width+'px',height:r.height+'px',maxWidth:'none',maxHeight:'none',objectFit:'fill',willChange:'transform',transition:'none',filter:'none'});
+   stage.appendChild(el);return el;
+  };
+  const departing=phantom(srcBefore,oldRect);
+  scene.appendChild(stage); // Cover the original BEFORE switching its contents.
+  scene.classList.add('rev162-changing');
+  world.style.visibility='hidden';
+  panel=0;index=next;
+  resetTransform();
+  image.src=nextSrc;
+  try{await image.decode();}catch(_){}
+  scene.dataset.orientation=preloaded.naturalHeight>preloaded.naturalWidth*1.12?'portrait':'landscape';
+  updateInfo();populateWorks();
+  void artZone.offsetHeight;
+  const newRect=paintedRect(image);
+  const arriving=phantom(nextSrc,newRect);
+  const width=window.innerWidth;
+  // Just enough offset to pass completely across the visible edge.
+  const travel= Math.max(width+oldRect.width,width+newRect.width);
+  const duration=reducedMotion?1:1420;
+  const settings={duration,easing:'cubic-bezier(.42,.00,.18,1)',fill:'both'};
+  try{
+   await Promise.all([
+    flash(departing,[{transform:'translate3d(0,0,0)'},{transform:`translate3d(${-direction*travel}px,0,0)`}],settings),
+    flash(arriving,[{transform:`translate3d(${direction*travel}px,0,0)`},{transform:'translate3d(0,0,0)'}],settings)
+   ]);
+  }finally{
+   if(alive){
+    world.style.visibility='visible';
+    stage.remove();scene.classList.remove('rev162-changing');
+   }
+   busy=false;
+   lastWheel=performance.now(); // Ignore any inertial tail of the wheel gesture.
+   if(queued!==null&&alive){const target=queued;queued=null;showWork(target);}
+  }
+ }
+
+ function wheelArt(e){if(immersiveOpen||!e.cancelable)return;const step=Math.abs(e.deltaY)>Math.abs(e.deltaX)?e.deltaY:e.deltaX;if(Math.abs(step)<2)return;e.preventDefault();
+  if(near){
+    // A restrained wheel zoom from the closer view; the white ground moves with the canvas.
+    const old=zoom;zoom=Math.max(1,Math.min(1.75,zoom*Math.exp(-step*.00135)));
+    if(Math.abs(zoom-old)>.00001)transform();
+  }
+ 
+  else if(!busy&&performance.now()-lastWheel>1150){lastWheel=performance.now();showWork(index+(step>0?1:-1));}
+ }
+ function downArt(e){
+  if(immersiveOpen || (e.pointerType==='mouse'&&e.button!==0))return;
+  if(e.pointerType==='touch'){
+   galleryTouches.set(e.pointerId,{x:e.clientX,y:e.clientY});
+   if(galleryTouches.size===2){
+    // Two-finger zoom is available inside the framed gallery as well as in ESPLORA L'OPERA.
+    // The painting stays clipped inside the central display zone, clear of fixed labels.
+    drag=null;if(!near)setNear(true);
+    const [a,b]=[...galleryTouches.values()];
+    galleryPinch={distance:Math.max(1,Math.hypot(a.x-b.x,a.y-b.y)),startZoom:zoom};
+    suppressArtClickUntil=performance.now()+850;
+    for(const id of galleryTouches.keys()){try{artZone.setPointerCapture(id);}catch(_){}}
+    return;
+   }
+  }
+  drag={x:e.clientX,y:e.clientY,startX:dx,startY:dy,id:e.pointerId,moved:false};
+ }
+ function moveArt(e){
+  if(e.pointerType==='touch'&&galleryTouches.has(e.pointerId)){
+   const p=galleryTouches.get(e.pointerId);p.x=e.clientX;p.y=e.clientY;
+   if(galleryPinch&&galleryTouches.size===2){
+    const [a,b]=[...galleryTouches.values()];
+    const distance=Math.hypot(a.x-b.x,a.y-b.y);
+    zoom=Math.max(1,Math.min(1.75,galleryPinch.startZoom*distance/galleryPinch.distance));
+    transform();suppressArtClickUntil=performance.now()+850;
+    return;
+   }
+  }
+  if(!drag||drag.id!==e.pointerId)return;
+  const diffX=e.clientX-drag.x,diffY=e.clientY-drag.y;
+  if(Math.abs(diffX)+Math.abs(diffY)>7)drag.moved=true;
+  if(near&&drag.moved){
+   if(!drag.captured){drag.captured=true;try{artZone.setPointerCapture(e.pointerId);}catch(_){}artZone.classList.add('is-grabbing');world.classList.add('is-moving');}
+   dx=drag.startX+diffX;dy=drag.startY+diffY;transform();
+  }
+ }
+ function upArt(e){
+  if(e.pointerType==='touch'){
+   const wasPinching=!!galleryPinch;
+   galleryTouches.delete(e.pointerId);
+   if(wasPinching){
+    drag=null;galleryPinch=null;suppressArtClickUntil=performance.now()+850;
+    world.classList.remove('is-moving');artZone.classList.remove('is-grabbing');
+    if(artZone.hasPointerCapture?.(e.pointerId))artZone.releasePointerCapture(e.pointerId);
+    return;
+   }
+  }
+  if(!drag||drag.id!==e.pointerId)return;
+  const d=drag;drag=null;
+  world.classList.remove('is-moving');artZone.classList.remove('is-grabbing');
+  if(artZone.hasPointerCapture?.(e.pointerId))artZone.releasePointerCapture(e.pointerId);
+  if(d.moved){ignoreClick=true;setTimeout(()=>ignoreClick=false,110);if(!near&&Math.abs(e.clientX-d.x)>45&&Math.abs(e.clientX-d.x)>Math.abs(e.clientY-d.y)*1.2)showWork(index+(e.clientX<d.x?1:-1));}
+ }
+ function clickArt(){if(ignoreClick||performance.now()<suppressArtClickUntil){ignoreClick=false;return;}setNear(!near);}
+ function viewerGeometry(){if(!immersiveOpen)return;const vw=canvas.clientWidth,vh=canvas.clientHeight;
+  rev212Layout(vw,vh);drawViewer();}
+ function viewerClamp(){
+  // Pan within the painted region, not into the original white photographic margin.
+  // The source 9600x5400 photograph, including its cast shadow, remains unchanged.
+  const [l,t,r,b]=artworkBounds;
+  const w=coverWidth*viewZoom,h=coverHeight*viewZoom;
+  const minX=canvas.clientWidth/2-(r-.5)*w,maxX=-canvas.clientWidth/2-(l-.5)*w;
+  const minY=canvas.clientHeight/2-(b-.5)*h,maxY=-canvas.clientHeight/2-(t-.5)*h;
+  vx=minX<=maxX?Math.min(maxX,Math.max(minX,vx)):(minX+maxX)/2;
+  vy=minY<=maxY?Math.min(maxY,Math.max(minY,vy)):(minY+maxY)/2;
+ }
+ // Render zoom from the original 9600 x 5400 photographic sources, preserving all pixels.
+ // This avoids enlarging a cached low-resolution composited browser layer.
+ function rev201Paint(){
+   rev201Frame=0;
+   if(!immersiveOpen||viewZoom<=1.025||!rev201Ctx||!bigImage.complete||!bigImage.naturalWidth)return;
+   const w=canvas.clientWidth,h=canvas.clientHeight;if(!w||!h)return;
+   const pxRatio=Math.min(window.devicePixelRatio||1,3,Math.sqrt(16000000/(w*h)));
+   const pw=Math.max(1,Math.round(w*pxRatio)),ph=Math.max(1,Math.round(h*pxRatio));
+   if(rev201Canvas.width!==pw||rev201Canvas.height!==ph){rev201Canvas.width=pw;rev201Canvas.height=ph;}
+   rev201Ctx.setTransform(pw/w,0,0,ph/h,0,0);
+   rev201Ctx.fillStyle='#060606';rev201Ctx.fillRect(0,0,w,h);
+   rev201Ctx.imageSmoothingEnabled=true;rev201Ctx.imageSmoothingQuality='high';
+   const dw=coverWidth*viewZoom,dh=coverHeight*viewZoom;
+   const x=(w-dw)/2+vx,y=(h-dh)/2+vy;
+   rev201Ctx.drawImage(bigImage,x,y,dw,dh);
+ }
+ function drawViewer(){
+   viewerClamp();bigImage.style.transform=`translate(-50%,-50%) translate3d(${vx}px,${vy}px,0) scale(${viewZoom})`;
+   const hires=immersiveOpen&&viewZoom>1.025&&!!rev201Ctx;
+   canvas.classList.toggle('rev201-hires',hires);
+   if(hires&&!rev201Frame)rev201Frame=requestAnimationFrame(rev201Paint);
+   if(!hires&&rev201Frame){cancelAnimationFrame(rev201Frame);rev201Frame=0;}
+ }
+ // REV211: a shared-image transition. The painting itself visually expands
+ // into the existing explorer; no route change or replacement screen is shown.
+ // The flying image shares the exact URL/cache of the gallery photograph.
+ let rev211Flight=null,rev211Motion=null,rev211Shade=null;
+ let rev211Going=false,rev211Proxy=null,rev211ProxySrc='';
+ // An on-screen transition only: a small temporary canvas avoids animating a
+ // 50-megapixel GPU texture. The original photographic asset is untouched.
+ function rev211PrepareProxy(){
+   if(!image.complete||!image.naturalWidth)return null;
+   const src=image.currentSrc||image.src;
+   if(rev211ProxySrc===src&&rev211Proxy)return rev211Proxy;
+   const ratio=image.naturalWidth/image.naturalHeight;
+   const w=Math.min(1600,image.naturalWidth),h=Math.round(w/ratio);
+   const proxy=document.createElement('canvas');proxy.width=w;proxy.height=h;
+   const context=proxy.getContext('2d',{alpha:false});
+   if(!context)return null;
+   context.imageSmoothingEnabled=true;context.imageSmoothingQuality='high';
+   context.drawImage(image,0,0,w,h);
+   rev211Proxy=proxy;rev211ProxySrc=src;
+   return proxy;
+ }
+ function rev211DisposeFlight(){
+   if(rev211Motion){try{rev211Motion.cancel();}catch(_){} rev211Motion=null;}
+   if(rev211Shade){try{rev211Shade.cancel();}catch(_){} rev211Shade=null;}
+   if(rev211Flight){rev211Flight.remove();rev211Flight=null;}
+   image.style.visibility='';
+   rev211Going=false;
+ }
+ function rev211PhotoRect(el){
+   const r=el.getBoundingClientRect();
+   const nw=el.naturalWidth||r.width,nh=el.naturalHeight||r.height;
+   if(getComputedStyle(el).objectFit!=='contain'||!nw||!nh)return r;
+   const fit=Math.min(r.width/nw,r.height/nh);
+   const dw=nw*fit,dh=nh*fit;
+   return {left:r.left+(r.width-dw)/2,top:r.top+(r.height-dh)/2,width:dw,height:dh};
+ }
+ function rev211Pose(rect,w,h){
+   const centerX=rect.left+rect.width/2,centerY=rect.top+rect.height/2;
+   const dx=centerX-innerWidth/2,dy=centerY-innerHeight/2;
+   return `translate(-50%,-50%) translate3d(${dx}px,${dy}px,0) scale(${rect.width/w})`;
+ }
+ async function openImmersive(){
+   if(immersiveOpen||!alive||rev211Going)return;
+   clearTimeout(rev210CloseTimer);clearTimeout(enterTimer);
+   const token=++rev210OpenToken;
+   const current=items[index],src=MEDIA[activeSource(current)];
+   const from=rev211PhotoRect(image);
+   const valid=from.width>0&&from.height>0&&image.complete&&image.naturalWidth>0;
+   oldFocus=document.activeElement;
+   immersiveOpen=true;rev211Going=true;viewZoom=1;vx=0;vy=0;
+   caption.textContent=panelLabel(current);
+   // Prepare a full-resolution destination while the *already visible* source
+   // is animating. Waiting for decode never leaves a blank frame.
+   if(bigImage.getAttribute('src')!==src)bigImage.setAttribute('src',src);
+   naturalW=image.naturalWidth||bigImage.naturalWidth||1000;
+   naturalH=image.naturalHeight||bigImage.naturalHeight||1000;
+   artworkBounds=rev212BoundsFor(src);
+   focusBounds=rev212InitialPanel[src.split('/').pop()]||artworkBounds;
+   rev212Layout(innerWidth,innerHeight);
+   immersive.hidden=false;
+   immersive.classList.remove('rev210-ready','rev162-entering','rev211-active');
+   immersive.classList.add('is-visible','rev211-entering');
+   document.body.classList.add('rev155-immersive-open');
+   canvas.classList.remove('rev201-hires');
+   if(valid&&!reducedMotion&&typeof image.animate==='function'){
+     const fly=rev211PrepareProxy();
+     if(!fly){immersive.classList.remove('rev211-entering');immersive.classList.add('rev211-active','rev210-ready');rev211Going=false;return;}
+     fly.setAttribute('aria-hidden','true');
+     fly.className='rev211-flight';
+     fly.style.cssText='position:absolute!important;top:50%!important;left:50%!important;object-fit:fill!important;max-width:none!important;max-height:none!important;transform-origin:center center!important;pointer-events:none!important;opacity:1!important;transition:none!important;animation:none!important;filter:none!important;will-change:transform;';
+     // Keep the moving canvas at its native 1600px resolution: scale via GPU only.
+     fly.style.width=fly.width+'px';fly.style.height=fly.height+'px';
+     const start=rev211Pose(from,fly.width,fly.height);
+     const end=`translate(-50%,-50%) translate3d(${vx}px,${vy}px,0) scale(${coverWidth/fly.width})`;
+     fly.style.transform=start;
+     canvas.appendChild(fly);rev211Flight=fly;
+     // Both images use the same source. Hide the old one only when the
+     // moving duplicate has taken its exact screen position.
+     // Keep the gallery source visible behind the travelling copy until
+     // the immersive view is ready; never flash an empty white stage.
+     const timing={duration:1120,easing:'cubic-bezier(.18,.77,.17,1)',fill:'forwards'};
+     rev211Motion=fly.animate([{transform:start},{transform:end}],timing);
+     rev211Shade=immersive.animate([{backgroundColor:'rgba(6,6,6,0)'},{backgroundColor:'rgba(6,6,6,1)'}],timing);
+   }
+   // No network request is made when the gallery image and explorer share src.
+   // Some browsers require an additional decoding pass for the full-sized view;
+   // the animated copy stays on-screen until it is actually ready.
+   try {if(!bigImage.complete||!bigImage.naturalWidth)await bigImage.decode();}catch(_){}
+   if(!immersiveOpen||token!==rev210OpenToken)return;
+   if(rev211Motion){try{await rev211Motion.finished;}catch(_){} }
+   if(!immersiveOpen||token!==rev210OpenToken)return;
+   naturalW=bigImage.naturalWidth||naturalW;
+   naturalH=bigImage.naturalHeight||naturalH;
+   // Compute geometry exactly once, after the animated image reaches its final
+   // position. At this instant the two same-source copies are superimposed.
+   viewerGeometry();
+   immersive.classList.remove('rev211-entering');
+   immersive.classList.add('rev211-active','rev210-ready');
+   await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+   if(!immersiveOpen||token!==rev210OpenToken)return;
+   rev211DisposeFlight();
+   back.focus({preventScroll:true});
+ }
+ function closeImmersive(immediate=false){
+   ++rev210OpenToken;clearTimeout(enterTimer);clearTimeout(rev210CloseTimer);
+   immersiveOpen=false;
+   canvas.classList.remove('rev201-hires');
+   if(rev201Frame)cancelAnimationFrame(rev201Frame);rev201Frame=0;
+   pointers.clear();pinch=null;
+   rev211DisposeFlight();
+   immersive.classList.remove('rev211-entering','rev211-active','rev210-ready','rev162-entering');
+   if(immediate||reducedMotion){
+     immersive.hidden=true;immersive.classList.remove('is-visible');
+     document.body.classList.remove('rev155-immersive-open');
+     if(!immediate)oldFocus?.focus?.({preventScroll:true});
+     return;
+   }
+   immersive.classList.add('rev211-leaving');
+   requestAnimationFrame(()=>immersive.classList.remove('is-visible'));
+   rev210CloseTimer=setTimeout(()=>{
+     immersive.hidden=true;immersive.classList.remove('rev211-leaving');
+     document.body.classList.remove('rev155-immersive-open');
+     oldFocus?.focus?.({preventScroll:true});
+   },530);
+ }
+ function viewerWheel(e){if(!e.cancelable)return;e.preventDefault();const old=viewZoom;const next=Math.max(1,Math.min(4.5,old*Math.exp(-e.deltaY*.0012)));
+  const offsetX=e.clientX-canvas.getBoundingClientRect().left-canvas.clientWidth/2;
+  const offsetY=e.clientY-canvas.getBoundingClientRect().top-canvas.clientHeight/2;
+  vx=offsetX+(vx-offsetX)*(next/old);vy=offsetY+(vy-offsetY)*(next/old);viewZoom=next;drawViewer();}
+ function vdown(e){if(e.button!==0&&e.pointerType==='mouse')return;canvas.setPointerCapture(e.pointerId);pointers.set(e.pointerId,{x:e.clientX,y:e.clientY,px:e.clientX,py:e.clientY});canvas.classList.add('is-grabbing');
+  if(pointers.size===2){const pts=[...pointers.values()];pinch={dist:Math.hypot(pts[0].x-pts[1].x,pts[0].y-pts[1].y),zoom:viewZoom};}}
+ function vmove(e){if(!pointers.has(e.pointerId))return;const p=pointers.get(e.pointerId);const px=p.x,py=p.y;p.x=e.clientX;p.y=e.clientY;
+  if(pointers.size===1){vx+=e.clientX-px;vy+=e.clientY-py;drawViewer();}
+  else if(pointers.size===2&&pinch){const pts=[...pointers.values()];const nextZoom=Math.max(1,Math.min(4.5,pinch.zoom*Math.hypot(pts[0].x-pts[1].x,pts[0].y-pts[1].y)/Math.max(1,pinch.dist)));const ratio=nextZoom/viewZoom;vx*=ratio;vy*=ratio;viewZoom=nextZoom;drawViewer();}}
+ function vup(e){pointers.delete(e.pointerId);if(pointers.size<2)pinch=null;if(!pointers.size)canvas.classList.remove('is-grabbing');}
+ function key(e){if(!root.isConnected)return;
+  if(immersiveOpen){if(e.key==='Escape'){e.preventDefault();closeImmersive();}else if(e.key==='Tab'&&!e.shiftKey&&document.activeElement===back){e.preventDefault();back.focus();}return;}
+  if(e.target.closest('input,textarea,select,[contenteditable]'))return;
+  if(e.key==='Escape'){worksList.hidden=true;seriesList.hidden=true;worksToggle.setAttribute('aria-expanded','false');seriesToggle.setAttribute('aria-expanded','false');scene.classList.remove('has-works-open','has-series-open');if(near)setNear(false);}
+  else if(e.key==='ArrowLeft'){e.preventDefault();showWork(index-1);}else if(e.key==='ArrowRight'){e.preventDefault();showWork(index+1);}
+ }
+ worksToggle.addEventListener('click',()=>openDisclosure('works'));seriesToggle.addEventListener('click',()=>openDisclosure('series'));
+ worksList.addEventListener('click',e=>{const b=e.target.closest('[data-work]');if(b)showWork(Number(b.dataset.work));});
+ panelBox.addEventListener('click',async e=>{
+  const button=e.target.closest('[data-panel]');if(!button||busy)return;
+  const w=items[index];if(!panelPrefix(w))return;
+  const next=Number(button.dataset.panel);panel=next===0?0:(panel===next?0:next);
+  const src=MEDIA[activeSource(w)];
+  if(!src)return;
+  image.src=src;
+  try{await image.decode()}catch(err){}
+  scene.dataset.orientation=image.naturalHeight>image.naturalWidth*1.12?'portrait':'landscape';
+  resetTransform();updateInfo();
+ });
+ // Never allow the browser's middle-click autoscroll cursor over the lists.
+ for(const list of [worksList,seriesList]){
+   list.addEventListener('mousedown',e=>{if(e.button===1)e.preventDefault();});
+   list.addEventListener('auxclick',e=>{if(e.button===1)e.preventDefault();});
+ }
+ seriesList.addEventListener('click',e=>{const b=e.target.closest('[data-series]');if(!b)return;const r=b.dataset.series;if(r!==getPage()){
+    const dur=reducedMotion?1:500;
+    artZone.style.pointerEvents='none';
+    const current=world.animate([{transform:world.style.transform||'translate3d(0,0,0) scale(1)'},{transform:'translate3d(-102vw,0,0) scale(1)'}],{duration:dur,easing:'cubic-bezier(.45,0,.17,1)',fill:'forwards'});
+    current.finished.catch(()=>{}).then(()=>{if(alive){window.__rev157SeriesSlide=true;location.hash='#/'+r;}});
+   }else openDisclosure('series');});
+ art.addEventListener('click',clickArt);artZone.addEventListener('wheel',wheelArt,{passive:false});artZone.addEventListener('pointerdown',downArt);artZone.addEventListener('pointermove',moveArt);artZone.addEventListener('pointerup',upArt);artZone.addEventListener('pointercancel',e=>{galleryTouches.delete(e.pointerId);galleryPinch=null;drag=null;suppressArtClickUntil=performance.now()+750;world.classList.remove('is-moving');artZone.classList.remove('is-grabbing');});
+ explore.addEventListener('click',openImmersive);back.addEventListener('click',()=>closeImmersive());
+ canvas.addEventListener('wheel',viewerWheel,{passive:false});canvas.addEventListener('pointerdown',vdown);canvas.addEventListener('pointermove',vmove);canvas.addEventListener('pointerup',vup);canvas.addEventListener('pointercancel',vup);window.addEventListener('resize',viewerGeometry);document.addEventListener('keydown',key);
+ image.addEventListener('load',()=>{
+   if(root.isConnected){
+     scene.dataset.orientation=image.naturalHeight>image.naturalWidth*1.12?'portrait':'landscape';
+     rev211ProxySrc='';rev211Proxy=null;
+     setTimeout(()=>{if(alive&&image.complete)rev211PrepareProxy();},180);
+   }
+ });
+ scene.dataset.orientation=image.naturalHeight>image.naturalWidth*1.12?'portrait':'landscape';
+ if(matchMedia('(max-width:750px)').matches && getPage()==='neogenesi' && items.length>1){
+   index=1; image.src=MEDIA[items[index].src]; scene.dataset.orientation='landscape';
+ }
+ updateInfo();populateWorks();
+ scene.classList.add('has-works-open','has-series-open');
+ const rev182SlidingIn=window.__rev157SeriesSlide===true;
+ if(rev182SlidingIn){
+   window.__rev157SeriesSlide=false;
+   world.animate([{transform:'translate3d(102vw,0,0) scale(1)'},{transform:'translate3d(0,0,0) scale(1)'}],{duration:reducedMotion?1:570,easing:'cubic-bezier(.45,0,.17,1)'});
+ }
+ // Animate only the initial gallery presentation. Series-to-series changes retain their slide.
+ if(!rev182SlidingIn){rev183Prepare();rev183OnFirstDisplay();}
+ cleanup=()=>{alive=false;rev183IntroObserver?.disconnect();clearTimeout(rev183IntroTimer);rev183IntroAnimations.forEach(a=>a.cancel());rev183IntroNodes.forEach(el=>el.classList.remove('rev183-unrevealed'));closeImmersive(true);window.removeEventListener('resize',viewerGeometry);document.removeEventListener('keydown',key);};
+}
+
+function openWorkViewer(index){const view=document.getElementById('work-viewer');viewerFocus=document.activeElement;viewerIndex=index;const c=COLLECTIONS[getPage()]||COLLECTIONS.neogenesi;document.getElementById('viewer-collection').textContent=c.name.toUpperCase();document.getElementById('viewer-thumbs').innerHTML=c.items.map((w,i)=>`<button type="button" class="viewer-thumb" data-thumb="${i}" aria-label="Visualizza ${w.title}" aria-pressed="false"><img src="${MEDIA[w.src]}" alt="" loading="lazy"></button>`).join('');document.querySelectorAll('[data-thumb]').forEach(b=>b.addEventListener('click',()=>setViewedWork(Number(b.dataset.thumb))));view.classList.add('open');view.setAttribute('aria-hidden','false');document.body.classList.add('modal-open');setViewedWork(index,true);document.getElementById('viewer-close').focus();}
+function setViewedWork(index,immediate=false){const collection=galleryEntries();const target=(index+collection.length)%collection.length;if(viewerBusy && !immediate)return;const img=document.getElementById('viewer-image');const w=collection[target];const update=()=>{viewerIndex=target;img.src=MEDIA[w.src];img.alt=w.title;document.getElementById('viewer-title').textContent=w.title;document.getElementById('viewer-meta').textContent=[w.medium,w.size,w.year].filter(Boolean).join(' · ');document.getElementById('viewer-counter').textContent='';document.querySelectorAll('[data-thumb]').forEach(b=>{const active=Number(b.dataset.thumb)===target;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active));if(active)b.scrollIntoView({block:'nearest',inline:'nearest',behavior:'auto'})});};if(immediate||reduced.matches){update();return;}viewerBusy=true;img.animate([{opacity:1,transform:'translateY(0)'},{opacity:0,transform:'translateY(7px)'}],{duration:210,easing:'ease-in',fill:'forwards'}).finished.then(()=>{update();img.animate([{opacity:0,transform:'translateY(7px)'},{opacity:1,transform:'translateY(0)'}],{duration:420,easing:'cubic-bezier(.22,1,.36,1)',fill:'forwards'}).finished.finally(()=>{img.getAnimations().forEach(a=>a.cancel());viewerBusy=false;});}).catch(()=>{viewerBusy=false;});}
+function closeWorkViewer(restore=true){const view=document.getElementById('work-viewer');view.classList.remove('open');view.setAttribute('aria-hidden','true');document.body.classList.remove('modal-open');document.getElementById('viewer-image').getAnimations().forEach(a=>a.cancel());viewerBusy=false;if(restore&&viewerFocus?.isConnected)viewerFocus.focus();}
+document.getElementById('viewer-close').addEventListener('click',()=>closeWorkViewer());document.getElementById('viewer-prev').addEventListener('click',()=>setViewedWork(viewerIndex-1));document.getElementById('viewer-next').addEventListener('click',()=>setViewedWork(viewerIndex+1));document.getElementById('work-viewer').addEventListener('click',e=>{if(e.target.id==='work-viewer')closeWorkViewer()});
+function bindContact(){
+ const root=document.querySelector('.contact109');if(!root)return ()=>{};
+ const slides=[...root.querySelectorAll('.contact109-slide')];
+ const dots=[...root.querySelectorAll('.contact109-dot')];
+ const pause=root.querySelector('.contact109-pause');
+ const form=root.querySelector('#contact109-form');
+ const notice=root.querySelector('#contact109-notice');
+ const motion=window.matchMedia('(prefers-reduced-motion: reduce)');
+ let active=0,timer=null,paused=motion.matches,formFocused=false,disposed=false;
+ const canRun=()=>!disposed&&!paused&&!document.hidden&&!formFocused&&!motion.matches&&slides.length>1;
+ function stop(){if(timer!==null){clearTimeout(timer);timer=null}}
+ function schedule(){stop();if(canRun())timer=setTimeout(()=>change((active+1)%slides.length),7500)}
+ function change(index){
+  if(disposed||!slides[index]||!dots[index])return;
+  slides[active].classList.remove('current');dots[active].classList.remove('active');dots[active].setAttribute('aria-pressed','false');
+  active=index;slides[active].classList.add('current');dots[active].classList.add('active');dots[active].setAttribute('aria-pressed','true');
+  schedule();
+ }
+ const dotHandlers=[];
+ for(const dot of dots){const handler=()=>change(Number(dot.dataset.slide));dot.addEventListener('click',handler);dotHandlers.push([dot,handler])}
+ function paintPause(){if(pause){pause.setAttribute('aria-pressed',String(paused));pause.setAttribute('aria-label',paused?'Riprendi lo scorrimento delle immagini':'Metti in pausa lo scorrimento delle immagini')}}
+ const pauseClick=()=>{paused=!paused;paintPause();schedule()};
+ pause?.addEventListener('click',pauseClick);
+ const focusIn=()=>{formFocused=true;stop()};
+ const focusOut=()=>{setTimeout(()=>{if(disposed)return;formFocused=form.contains(document.activeElement);schedule()},20)};
+ form.addEventListener('focusin',focusIn);form.addEventListener('focusout',focusOut);
+ document.addEventListener('visibilitychange',schedule);
+ const motionChanged=()=>{if(motion.matches){paused=true;paintPause()}schedule()};
+ motion.addEventListener?.('change',motionChanged);
+ form.addEventListener('submit',async event=>{
+  event.preventDefault();notice.classList.remove('visible');
+  if(!form.checkValidity()){form.reportValidity();return;}
+  if(form.elements.namedItem('_gotcha')?.value)return;
+  const endpoint=window.DAVIDE_CONTACT_ENDPOINT||'';
+  if(!endpoint){
+   const name=form.elements.namedItem('name').value,from=form.elements.namedItem('email').value,msg=form.elements.namedItem('message').value;
+   const subject='Messaggio dal sito — '+name;
+   const body='Nome: '+name+'\nEmail: '+from+'\n\n'+msg;
+   notice.textContent='Si aprirà il programma di posta per completare l’invio.';notice.classList.add('visible');
+   window.location.href='mailto:'+email+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);return;
+  }
+  const btn=form.querySelector('.contact109-send');btn.disabled=true;notice.textContent='Invio in corso…';notice.classList.add('visible');
+  try{
+   const response=await fetch(endpoint,{method:'POST',body:new FormData(form),headers:{Accept:'application/json'}});
+   if(!response.ok)throw new Error('Invio non riuscito');
+   if(disposed)return;notice.textContent='Messaggio inviato correttamente.';form.reset();
+  }catch(e){if(!disposed)notice.textContent='Impossibile inviare il messaggio. Riprova più tardi.';}
+  finally{btn.disabled=false;}
+ });
+ paintPause();schedule();
+ return ()=>{disposed=true;stop();document.removeEventListener('visibilitychange',schedule);motion.removeEventListener?.('change',motionChanged);
+   pause?.removeEventListener('click',pauseClick);form.removeEventListener('focusin',focusIn);form.removeEventListener('focusout',focusOut);
+   for(const [dot,handler] of dotHandlers)dot.removeEventListener('click',handler);
+ };
+}
+
+function bindVideoHero133(){
+ const hero=app.querySelector('.rev133-video-hero');
+ if(!hero)return ()=>{};
+ const film=hero.querySelector('video');
+ const button=hero.querySelector('.rev133-video-toggle');
+ const reducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
+ let pausedByUser=false,active=true,disposed=false,raf=0;
+ const updatePlayback=()=>{
+   if(disposed||!film)return;
+   const shouldPlay=!reducedMotion.matches&&!document.hidden&&active&&!pausedByUser;
+   if(shouldPlay){const promise=film.play();if(promise?.catch)promise.catch(()=>{});}
+   else film.pause();
+ };
+ const progress=()=>{
+   raf=0;if(disposed)return;
+   const r=hero.getBoundingClientRect();
+   const p=Math.max(0,Math.min(1,-r.top/Math.max(1,r.height)));
+   hero.style.setProperty('--rev133-progress',p.toFixed(4));
+   const bio=app.querySelector('.rev133-bio');
+   if(bio){const b=bio.getBoundingClientRect();
+     const q=Math.max(-1,Math.min(1,(innerHeight/2-b.top-b.height/2)/Math.max(innerHeight,b.height)));
+     bio.style.setProperty('--rev133-bio-move',(q*25).toFixed(2)+'px');
+   }
+ };
+ const scroll=()=>{if(!raf)raf=requestAnimationFrame(progress)};
+ const toggle=()=>{
+   pausedByUser=!pausedByUser;
+   button.setAttribute('aria-pressed',String(pausedByUser));
+   button.setAttribute('aria-label',pausedByUser?'Riprendi il video':'Metti in pausa il video');
+   button.querySelector('span').textContent=pausedByUser?'▶':'Ⅱ';
+   updatePlayback();
+ };
+ const observer=new IntersectionObserver(entries=>{active=entries[0]?.isIntersecting??false;updatePlayback()},{threshold:.08});
+ observer.observe(hero);
+ button.addEventListener('click',toggle);
+ document.addEventListener('visibilitychange',updatePlayback);
+ window.addEventListener('scroll',scroll,{passive:true});
+ window.addEventListener('resize',scroll,{passive:true});
+ reducedMotion.addEventListener?.('change',updatePlayback);
+ progress();updatePlayback();
+ return ()=>{
+   disposed=true;cancelAnimationFrame(raf);observer.disconnect();film.pause();
+   button.removeEventListener('click',toggle);document.removeEventListener('visibilitychange',updatePlayback);
+   window.removeEventListener('scroll',scroll);window.removeEventListener('resize',scroll);
+   reducedMotion.removeEventListener?.('change',updatePlayback);
+ };
+}
+
+const scrollHeader=()=>document.querySelector('.site-header')?.classList.toggle('scrolled',window.scrollY>18);window.addEventListener('scroll',scrollHeader,{passive:true});window.addEventListener('hashchange',()=>{render();scrollHeader()});document.getElementById('menu-toggle').onclick=()=>{const nav=document.getElementById('site-nav');const expanded=nav.classList.toggle('open');document.getElementById('menu-toggle').setAttribute('aria-expanded',String(expanded))};document.getElementById('year').textContent=String(new Date().getFullYear());document.getElementById('zoom-close').innerHTML=ICON.up;document.getElementById('index-close').innerHTML=ICON.up;['zoom','index'].forEach(id=>{document.getElementById(id+'-close').onclick=()=>closeOverlay(id);document.getElementById(id).onclick=e=>{if(e.target.id===id)closeOverlay(id)}});document.addEventListener('click',e=>{const s=e.target.closest('[data-scroll]');if(s){e.preventDefault();document.getElementById(s.dataset.scroll)?.scrollIntoView({behavior:reduced.matches?'auto':'smooth'})}});document.addEventListener('keydown',e=>{if(document.getElementById('work-viewer').classList.contains('open')){if(e.key==='Escape'){closeWorkViewer();return;}if(e.key==='ArrowRight'){setViewedWork(viewerIndex+1);return;}if(e.key==='ArrowLeft'){setViewedWork(viewerIndex-1);return;}if(e.key==='Tab'){const focusables=[...document.querySelectorAll('#work-viewer button')].filter(b=>b.offsetParent!==null);const i=focusables.indexOf(document.activeElement);if(e.shiftKey&&i===0){e.preventDefault();focusables.at(-1).focus()}else if(!e.shiftKey&&i===focusables.length-1){e.preventDefault();focusables[0].focus()}}return;}if(e.key==='Escape'){if(document.getElementById('zoom').classList.contains('open'))closeOverlay('zoom');else if(document.getElementById('index').classList.contains('open'))closeOverlay('index')}else if(['neogenesi','percorso','altrilavori'].includes(getPage())&&!document.querySelector('.overlay.open')&& !!document.getElementById('gallery-image') && !/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)){if(e.key==='ArrowRight')nextGallery(1);else if(e.key==='ArrowLeft')nextGallery(-1)}});render();scrollHeader();document.body.classList.remove('site-booting');
+;

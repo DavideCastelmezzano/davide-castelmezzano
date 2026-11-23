@@ -1,0 +1,34 @@
+/* REV206 candidate - conservative, proportional display and safe touch gestures.
+   Keep the original painting photographs intact; never add a CSS shadow. */
+body.on-series .rev155-art-zone,
+body.on-series .rev155-scene.is-near .rev155-art-zone {
+  overflow:visible!important;
+  contain:none!important;
+  touch-action:none!important;
+}
+body.on-series .rev155-artwork,
+body.on-series .rev155-scene.is-near .rev155-artwork {
+  touch-action:none!important;
+}
+body.on-series .rev156-world::before {content:none!important;display:none!important;}
+/* In the near view, preserve the full photograph and the artist's shadow.
+   The gallery stage organizes layout, but must not clip the painting. */
+body.on-series .rev155-scene.is-near .rev155-photo-shell {
+  transform:scale(calc(.91 * var(--rev161-art-ratio,1)))!important;
+  filter:none!important;
+}
+/* Keep the interactive painting below permanently legible side captions. */
+body.on-series .rev155-work-info,
+body.on-series .rev155-series,
+body.on-series .rev155-works,
+body.on-series .rev155-actions {z-index:30!important;}
+/* Desktop: reserve a clear strip above the painting for series names.
+   The artwork may grow, but its framed stage must not touch the fixed labels. */
+@media (min-width:751px) {
+ body.on-series .rev155-art-zone,
+ body.on-series .rev155-scene.is-near .rev155-art-zone {
+   top:clamp(208px,26svh,285px)!important;
+   bottom:clamp(125px,17svh,195px)!important;
+   height:auto!important;
+ }
+}
