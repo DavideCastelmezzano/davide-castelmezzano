@@ -18,8 +18,10 @@
   const reverse=new Map(Object.entries(translations).map(([it,en])=>[en,it]));
   const stored=(()=>{try{return localStorage.getItem('davide-language-v1')}catch(e){return null}})();
   const legalBases=['privacy','cookies','note-legali'];
-  const legalBase=()=>{const seg=location.hash.replace(/^#\/?/,'').split('?')[0].replace(/\/$/,'');return legalBases.find(x=>seg===x||seg===x+'-en')||null};
-  let current=(/-(?:en)(?:\?|$)/.test(location.hash)?'en':stored==='en'?'en':'it');
+  const activeRoute=()=>location.hash.startsWith('#/')?location.hash.replace(/^#\/?/,'').split('?')[0].replace(/\/$/,''):((()=>{const a=location.pathname.replace(/\/+$/,'').split('/').filter(Boolean);return a.at(-1)==='index.html'?a.at(-2)||'':a.at(-1)||''})());
+  const legalBase=()=>{const seg=activeRoute();return legalBases.find(x=>seg===x||seg===x+'-en')||null};
+  const initialRoute=activeRoute();
+  let current=legalBase()?(initialRoute.endsWith('-en')?'en':'it'):(stored==='en'?'en':'it');
   let active=false,changing=false;
   const originalText=new WeakMap();const originalAttrs=new WeakMap();
   const attrs=['alt','aria-label','title','placeholder','value'];

@@ -30,7 +30,7 @@
  const clear=()=>{clearTimeout(ending);clearTimeout(opening);clearTimeout(routeHold);ending=0;opening=0;routeHold=0};
  const duration=()=>reduced.matches?0:860;
  const updateCurrent=()=>{
-   const hash=location.hash||'#/';
+   const hash=location.hash||('#/'+(location.pathname.replace(/\/+$/,'').split('/').pop()||''));
    let active=hash.includes('/ricerca')?'ricerca':hash.includes('/bio')?'bio':hash.includes('/contatti')?'contatti':'opere';
    for(const a of ordered)a.classList.toggle('rev169-current',a.dataset.nav===active);
  };
