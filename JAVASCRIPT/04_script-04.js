@@ -461,8 +461,15 @@ function bindCollection(){
  const explore=root.querySelector('#rev155-explore');
  const immersive=root.querySelector('#rev155-immersive'),canvas=root.querySelector('#rev155-immersive-canvas');
  const bigImage=root.querySelector('#rev155-immersive-image'),back=root.querySelector('#rev155-back'),caption=root.querySelector('#rev155-immersive-caption');
+ // Keep the 4K stage while an original master loads in the background.
+ const hiImage=document.createElement('img');
+ hiImage.className='rev216-hires-image';
+ hiImage.alt='';hiImage.draggable=false;hiImage.decoding='async';hiImage.setAttribute('aria-hidden','true');
+ canvas.appendChild(hiImage);
  const reducedMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
  let near=false,zoom=1,dx=0,dy=0,busy=false,queued=null,lastWheel=0,panel=0,enterTimer=0;
+ // REV216: one wheel gesture = one immediate navigation step; no 1.15s dead interval.
+ let wheelAccum=0,wheelDir=0,wheelEventAt=0,wheelNextAllowed=0;
  let alive=true,drag=null,ignoreClick=false,immersiveOpen=false,viewZoom=1,vx=0,vy=0;
  let naturalW=1,naturalH=1,coverWidth=1,coverHeight=1,oldFocus=null;
  const rev212ArtBounds={
@@ -501,6 +508,7 @@ function bindCollection(){
    coverWidth=naturalW*scale;coverHeight=naturalH*scale;
    vx=-( (l+r)*.5-.5)*coverWidth;vy=-( (t+b)*.5-.5)*coverHeight;
    bigImage.style.width=coverWidth+'px';bigImage.style.height=coverHeight+'px';
+   hiImage.style.width=coverWidth+'px';hiImage.style.height=coverHeight+'px';
  }
  let rev210CloseTimer=0,rev210OpenToken=0;
  const pointers=new Map();let pinch=null;
@@ -717,7 +725,7 @@ function bindCollection(){
   const width=window.innerWidth;
   // Just enough offset to pass completely across the visible edge.
   const travel= Math.max(width+oldRect.width,width+newRect.width);
-  const duration=reducedMotion?1:1070;
+  const duration=reducedMotion?1:585;
   const settings={duration,easing:'cubic-bezier(.42,.00,.18,1)',fill:'both'};
   try{
    await Promise.all([
@@ -731,19 +739,32 @@ function bindCollection(){
    }
    busy=false;
    rev213QueueWarm();
-   lastWheel=performance.now(); // Ignore any inertial tail of the wheel gesture.
    if(queued!==null&&alive){const target=queued;queued=null;showWork(target);}
   }
  }
 
- function wheelArt(e){if(immersiveOpen||!e.cancelable)return;const step=Math.abs(e.deltaY)>Math.abs(e.deltaX)?e.deltaY:e.deltaX;if(Math.abs(step)<2)return;e.preventDefault();
+ function wheelArt(e){
+  if(immersiveOpen||!e.cancelable)return;
+  const raw=Math.abs(e.deltaY)>Math.abs(e.deltaX)?e.deltaY:e.deltaX;
+  if(!raw)return;
+  e.preventDefault();
+  // Standard wheels fire ~100px per notch; trackpads emit smaller deltas.
+  const step=raw*(e.deltaMode===1?18:e.deltaMode===2?innerHeight:1);
   if(near){
-    // A restrained wheel zoom from the closer view; the white ground moves with the canvas.
-    const old=zoom;zoom=Math.max(1,Math.min(1.75,zoom*Math.exp(-step*.00135)));
-    if(Math.abs(zoom-old)>.00001)transform();
+   const old=zoom;zoom=Math.max(1,Math.min(1.75,zoom*Math.exp(-step*.00135)));
+   if(Math.abs(zoom-old)>.00001)transform();
+   return;
   }
- 
-  else if(!busy&&performance.now()-lastWheel>1150){lastWheel=performance.now();showWork(index+(step>0?1:-1));}
+  const now=performance.now(),dir=step>0?1:-1;
+  if(now-wheelEventAt>250||dir!==wheelDir)wheelAccum=0;
+  wheelEventAt=now;wheelDir=dir;
+  // Accumulate tiny trackpad deltas; a short half-notch movement is sufficient.
+  if(now<wheelNextAllowed)return;
+  wheelAccum+=step;
+  if(Math.abs(wheelAccum)<22)return;
+  wheelAccum=0;
+  wheelNextAllowed=now+385; // Prevent one physical detent from producing two moves.
+  showWork(index+dir); // During a slide, the existing one-item queue retains the next gesture.
  }
  function downArt(e){
   if(immersiveOpen || (e.pointerType==='mouse'&&e.button!==0))return;
@@ -811,13 +832,35 @@ function bindCollection(){
   vx=minX<=maxX?Math.min(maxX,Math.max(minX,vx)):(minX+maxX)/2;
   vy=minY<=maxY?Math.min(maxY,Math.max(minY,vy)):(minY+maxY)/2;
  }
- // REV214: the exploration view uses a single 3840x2160 image at every
- // zoom level. There is no second download or texture swap during deep zoom.
- // The original 9600x5400 masters are preserved in the user's REV212/213
- // backup and are not included in the deployed site.
+ // REV216: the gallery uses the small image, the entrance keeps the 4K stage,
+ // and an original master replaces it ONLY inside Esplora l'opera, once decoded.
+ // The original never enters the normal gallery navigation or its preloads.
  function drawViewer(){
    viewerClamp();
    bigImage.style.transform=`translate(-50%,-50%) translate3d(${vx}px,${vy}px,0) scale(${viewZoom})`;
+   hiImage.style.transform=bigImage.style.transform;
+ }
+ // Load the master AFTER the shared-image entrance. Never block the animation
+ // or show a loading placeholder: the existing 4K painting remains visible.
+ async function rev216UpgradeHires(token,stageSrc){
+  const src=MEDIA_HIRES(stageSrc);
+  if(!src||!immersiveOpen||token!==rev210OpenToken)return;
+  try{
+   hiImage.classList.remove('rev216-hires-ready');
+   hiImage.src=src;
+   if(hiImage.decode)await hiImage.decode();
+   else if(!hiImage.complete)await new Promise((resolve,reject)=>{hiImage.onload=resolve;hiImage.onerror=reject;});
+   if(!immersiveOpen||token!==rev210OpenToken)return;
+   // New and old images have identical aspect ratio and crop, so zero movement.
+   hiImage.style.width=bigImage.style.width;
+   hiImage.style.height=bigImage.style.height;
+   hiImage.style.transform=bigImage.style.transform;
+   requestAnimationFrame(()=>{
+    if(immersiveOpen&&token===rev210OpenToken)hiImage.classList.add('rev216-hires-ready');
+   });
+  }catch(_){
+   // Offline/low-memory browsers continue with the fully usable 4K stage.
+  }
  }
  // REV211: a shared-image transition. The painting itself visually expands
  // into the existing explorer; no route change or replacement screen is shown.
@@ -865,6 +908,7 @@ function bindCollection(){
    clearTimeout(rev210CloseTimer);clearTimeout(enterTimer);
    const token=++rev210OpenToken;
    const current=items[index],src=MEDIA_EXPLORE(MEDIA[activeSource(current)]);
+   hiImage.classList.remove('rev216-hires-ready');hiImage.removeAttribute('src');
    const from=rev211PhotoRect(image);
    const valid=from.width>0&&from.height>0&&image.complete&&image.naturalWidth>0;
    oldFocus=document.activeElement;
@@ -920,11 +964,13 @@ function bindCollection(){
    if(!immersiveOpen||token!==rev210OpenToken)return;
    rev211DisposeFlight();
    back.focus({preventScroll:true});
+   // Start original-resolution decode only after the 4K transition is complete.
+   void rev216UpgradeHires(token,src);
  }
  function closeImmersive(immediate=false){
    ++rev210OpenToken;clearTimeout(enterTimer);clearTimeout(rev210CloseTimer);
    immersiveOpen=false;
-   setTimeout(()=>{if(!immersiveOpen)bigImage.removeAttribute('src');},650);
+   setTimeout(()=>{if(!immersiveOpen){bigImage.removeAttribute('src');hiImage.classList.remove('rev216-hires-ready');hiImage.removeAttribute('src');}},650);
    pointers.clear();pinch=null;
    rev211DisposeFlight();
    immersive.classList.remove('rev211-entering','rev211-active','rev210-ready','rev162-entering');
