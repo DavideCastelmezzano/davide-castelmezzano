@@ -1,9 +1,9 @@
 
 
-MEDIA['ng_imago_panel1.jpg']='MEDIA/opera_imago_pannello1.jpg';
-MEDIA['ng_imago_panel2.jpg']='MEDIA/opera_imago_pannello2.jpg';
-MEDIA['ng_endi_panel1.jpg']='MEDIA/opera_endiadi_pannello1.jpg';
-MEDIA['ng_endi_panel2.jpg']='MEDIA/opera_endiadi_pannello2.jpg';
+MEDIA['ng_imago_panel1.jpg']='MEDIA/preview/opera_imago_pannello1.jpg';
+MEDIA['ng_imago_panel2.jpg']='MEDIA/preview/opera_imago_pannello2.jpg';
+MEDIA['ng_endi_panel1.jpg']='MEDIA/preview/opera_endiadi_pannello1.jpg';
+MEDIA['ng_endi_panel2.jpg']='MEDIA/preview/opera_endiadi_pannello2.jpg';
 
 const WORKS=[
  {title:'Smek',year:'2026',medium:'Olio su tela',size:'60 × 100 cm',src:'ng_smek.jpg'},

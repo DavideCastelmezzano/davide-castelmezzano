@@ -63,7 +63,7 @@ body.on-series .rev157-slide-frame img{
 
 /* Aspetto delle tre pagine legali: sfondo nero, testo bianco,
    Jost per i titoli e Switzer per il corpo, senza altri selettori lingua.
-   Le bozze dei testi devono ancora essere sostituite con gli atti approvati. */
+   I testi delle informative provengono dal documento fornito REV205 (24 novembre 2026). */
 body.on-legal, body.on-legal #app{background:#090a0b!important;color:#f7f7f4!important}
 body.on-legal .site-header,body.on-legal .site-header.scrolled{
  background:#090a0b!important;color:#f7f7f4!important;
@@ -218,3 +218,7 @@ body.on-series .rev155-immersive.rev211-leaving {opacity:0!important;transition:
 @media(prefers-reduced-motion:reduce){
   body.on-series .rev155-immersive.rev211-entering #rev155-immersive-image {opacity:1!important;}
 }
+
+/* REV215 — supplied legal document: readable static policy text, discrete updated line. */
+body.on-legal #app .legal31-content .rev165-item.rev165-wait{opacity:1!important;transform:none!important;visibility:visible!important;filter:none!important;transition:none!important;pointer-events:auto!important}
+body.on-legal .legal31-update{margin-top:36px!important;opacity:.75;font-size:11px!important;letter-spacing:.01em}

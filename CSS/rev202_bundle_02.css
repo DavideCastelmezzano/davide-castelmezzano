@@ -91,7 +91,7 @@ body.on-home .site-footer.footer31 {border-top:1px solid rgba(255,255,255,.32)}
 @media(prefers-reduced-motion:reduce) {
   .home .home-process{height:auto!important}
   .home .process-stage{position:relative;height:85svh;min-height:480px;
-    background:#090a0b url('../MEDIA/home_hero_1.png') center/cover no-repeat}
+    background:#090a0b url('../MEDIA/home_hero_1.webp') center/cover no-repeat}
   .home .process-film{display:none!important}
   .home .process-shade{opacity:1!important;background:linear-gradient(180deg,#0008,#0007 55%,#050506)!important}
   .home .process-copy{opacity:1!important}
